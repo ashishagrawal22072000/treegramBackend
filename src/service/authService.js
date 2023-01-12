@@ -200,7 +200,7 @@ class AuthService extends CommonService {
       if (!user) {
         return {
           status: process.env.BADREQUEST,
-          message: Messages.EMAIL_NOT_FOUND,
+          message: Messages.USER_NOT_FOUND,
         };
       } else {
         if (data.confirmPassword === data.password) {

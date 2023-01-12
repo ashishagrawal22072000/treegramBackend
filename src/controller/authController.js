@@ -1,3 +1,4 @@
+import { required } from "joi";
 import userModel from "../model/userModel.js";
 import authService from "../service/authService.js";
 import methods from "../util/methods.js";
@@ -145,7 +146,7 @@ class AuthController {
         });
       }
       const resetPasswordData = await authService.resetPassword(
-        req.query.token,
+        req.params.token,
         req.body
       );
       return res.status(resetPasswordData.status).json({
