@@ -1,0 +1,158 @@
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      operationId: sign-up
+      summary: Add new user.
+      produces:
+        - application/json
+      requestBody:
+        description: Sign up request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+      responses:
+        '200':
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Signed in successfully.
+        '500':
+          description: 500 Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Something went wrong. Please try again.
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      operationId: login User
+      summary: login User.
+      produces:
+        - application/json
+      requestBody:
+        description: login request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: log in successfully.
+        '500':
+          description: 500 Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Something went wrong. Please try again.
+  /auth/verify_email:
+    post:
+      tags:
+        - Auth
+      operationId: verify-email
+      summary: User Email Verification.
+      produces:
+        - application/json
+      requestBody:
+        description: Verifiy email request body.
+        required: true
+      parameters:
+        - name: token
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Email Verified successfully.
+        '500':
+          description: 500 Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Something went wrong. Please try again.
+components:
+  schemas:
+    Signup:
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+        - phone
+    Login:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+        
