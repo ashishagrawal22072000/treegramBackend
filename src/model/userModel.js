@@ -3,11 +3,7 @@ import methods from "../util/methods.js";
 import bcrypt from "bcryptjs";
 const userSchema = new mongoose.Schema(
   {
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
+    username: {
       type: String,
       required: true,
     },
@@ -15,7 +11,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    phone: {
+      type: String,
+      required: true,
+    },
     password: {
+      type: String,
+      required: true,
+    },
+    dateOfBirth: {
       type: String,
       required: true,
     },
@@ -24,27 +28,13 @@ const userSchema = new mongoose.Schema(
       required: false,
       default: [],
     },
-    phone: {
-      type: String,
-      required: true,
-    },
     profile: {
       type: String,
     },
-    // resetPasswordToken: {
-    //   type: String,
-    //   required: false
-    // },
-
-    // resetPasswordExpires: {
-    //   type: Date,
-    //   required: false
-    // },
     status: {
       type: Boolean,
       default: true,
       required: false,
-      max: 255,
     },
     role: {
       type: String,
@@ -54,9 +44,9 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // authOtp: {
-    //   type: Number,
-    // },
+    authOtp: {
+      type: Number,
+    },
     created_At: {
       type: Date,
       default: new Date(),

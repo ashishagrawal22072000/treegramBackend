@@ -8,11 +8,7 @@ class FindRepo {
   async find(query, limit = 0, skip = 0) {
     return await this.model
       .find({
-        $or: [
-          { firstName: { $regex: query } },
-          { lastName: { $regex: query } },
-          { email: { $regex: query } },
-        ],
+        $or: [{ username: query }, { email: query }, { phone: query }],
       })
       .limit(limit)
       .skip(skip);
@@ -23,6 +19,12 @@ class FindRepo {
   }
   async findByEmail(email) {
     return await this.model.findOne({ email });
+  }
+  async findByPhone(phone) {
+    return await this.model.findOne({ phone });
+  }
+  async findByUsername(username) {
+    return await this.model.findOne({ username });
   }
   async findByQuery(query, attribute) {
     console.log(query, attribute);

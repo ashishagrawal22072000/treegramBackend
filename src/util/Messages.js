@@ -4,6 +4,8 @@ export default {
   USER_FETCHED: "User Fetched Successfully",
   INTERNAL_SERVER_ERROR: "Internal Server Error",
   USER_EXISTS: "User Already Exists",
+  USERNAME_EXISTS: "Username Already Exists",
+  USERNAME_DOESNOT_EXISTS: "username does not exist",
   USER_FOUND: "User Found",
   USER_EMAIL_VERIFIED: "User Email Verified Successfully",
   USER_UPDATED: "User Updated Successfully",
@@ -29,4 +31,5 @@ export default {
   AUTH_ERROR: "Token is required",
   JWT_ERROR: "Invalid JWT token",
   EMAIL_SENT: "Verification Email sent Successfully",
+  FRONTEND_BASEURL: "http://localhost:3000",
 };

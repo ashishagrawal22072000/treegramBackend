@@ -31,8 +31,9 @@ class AuthService extends CommonService {
 
   async signUp(data) {
     try {
-      const userData = await this.FindUserRepo.findByEmail(data.email);
-      if (userData) {
+      const emailExist = await this.FindUserRepo.findByEmail(data.email);
+      const phoneExist = await this.FindUserRepo.findByEmail(data.phone);
+      if (emailExist || phoneExist) {
         return {
           status: process.env.BADREQUEST,
           message: Messages.USER_EXISTS,
@@ -42,7 +43,7 @@ class AuthService extends CommonService {
         const password = await methods.hashPassword(data.password);
         data.password = password;
         data.oldPassword = [password];
-        // data.authOtp = await methods.generateOtp();
+        data.authOtp = await methods.generateOtp();
         const user = await new CreateRepo(userModel).create(data);
         if (!user) throw new Error("Couldn't create User");
         const token = await methods.generateToken({
@@ -66,14 +67,17 @@ class AuthService extends CommonService {
 
   async loginUser(data) {
     try {
-      const userLogin = await this.FindUserRepo.findByEmail(data.email);
-      if (!userLogin) {
+      const userLogin = await this.FindUserRepo.find(data.name);
+      if (!userLogin.length) {
         return {
           status: process.env.BADREQUEST,
           message: Messages.EMAIL_NOT_FOUND,
         };
       }
-      const password = await methods.verifyPassword(data, userLogin.password);
+      const password = await methods.verifyPassword(
+        data,
+        userLogin[0].password
+      );
       if (!password) {
         return {
           status: process.env.BADREQUEST,
@@ -91,6 +95,7 @@ class AuthService extends CommonService {
         };
       }
     } catch (err) {
+      console.log(err);
       return {
         status: process.env.INTERNALSERVERERROR,
         message: Messages.INTERNAL_SERVER_ERROR,
@@ -135,21 +140,22 @@ class AuthService extends CommonService {
 
   async forgetPassword(data) {
     try {
-      const user = await this.FindUserRepo.findByEmail(data.email);
+      const user = await this.FindUserRepo.find(data.name);
       if (!user) {
         return {
           status: process.env.BADREQUEST,
-          message: Messages.EMAIL_NOT_FOUND,
+          message: Messages.USER_NOT_FOUND,
         };
       }
+      console.log(user[0].email);
       const token = await methods.generateToken({
         id: user._id,
-        email: user.email,
+        email: user[0].email,
       });
       return {
         status: process.env.SUCCESS,
         message: Messages.PASSWORD_RESET_EMAIL,
-        data: { user, token },
+        data: { user: user[0], token },
       };
     } catch (err) {
       return {
@@ -228,6 +234,28 @@ class AuthService extends CommonService {
           };
         }
       }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async checkuserName({ username }) {
+    try {
+      const userData = await this.FindUserRepo.findByUsername(username);
+      console.log(userData);
+      if (userData) {
+        return {
+          status: process.env.BADREQUEST,
+          message: Messages.USERNAME_EXISTS,
+        };
+      }
+      return {
+        status: process.env.SUCCESS,
+        message: Messages.USERNAME_DOESNOT_EXISTS,
+      };
     } catch (err) {
       console.log(err);
       return {

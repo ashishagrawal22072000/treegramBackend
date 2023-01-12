@@ -3,7 +3,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 const definition = {
   openapi: "3.0.0",
   info: {
-    title: "BracketIn Apis",
+    title: "treegram Apis",
     version: `1.0.0`,
   },
   servers: [

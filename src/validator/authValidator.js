@@ -1,31 +1,19 @@
 import Joi from "joi";
 class AuthValidator {
   signUpValidator = Joi.object().keys({
-    firstName: Joi.string()
+    username: Joi.string()
       .trim()
       .min(3)
       .max(20)
-      .pattern(/[A-Za-z]/)
+      .pattern(/^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/)
       .required()
       .messages({
-        "any.required": "FIRST NAME REQUIRED",
-        "string.empty": " FIRST NAME SHOULD NOT BE EMPTY",
-        "string.min": "3 CHARACTER REQUIRED",
+        "any.required": "USERNAME REQUIRED",
+        "string.empty": "USERNAME SHOULD NOT BE EMPTY",
+        "string.min": "5 CHARACTER REQUIRED",
         "string.max": "20 CHARACTER ONLY",
-        "string.pattern.base": "ALPHABETIC REQUIRED",
-      }),
-    lastName: Joi.string()
-      .trim()
-      .min(3)
-      .max(20)
-      .pattern(/[A-Za-z]/)
-      .required()
-      .messages({
-        "any.required": "LAST NAME REQUIRED",
-        "string.empty": " LAST NAME SHOULD NOT BE EMPTY",
-        "string.min": "3 CHARACTER REQUIRED",
-        "string.max": "20 CHARACTER ONLY",
-        "string.pattern.base": "ALPHABETIC REQUIRED",
+        "string.pattern.base":
+          "Username Only contains alphanumeric characters, underscore and dot",
       }),
     email: Joi.string()
       .trim()
@@ -41,22 +29,27 @@ class AuthValidator {
       }),
     password: Joi.string()
       .trim()
-      .min(3)
+      .min(8)
       .max(20)
-      .pattern(/[A-Za-z]/)
+      .pattern(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+      )
       .required()
       .messages({
         "any.required": "PASSWORD REQUIRED",
         "string.empty": " PASSWORD SHOULD NOT BE EMPTY",
-        "string.min": "3 CHARACTER REQUIRED",
+        "string.min": "8 CHARACTER REQUIRED",
         "string.max": "20 CHARACTER ONLY",
-        "string.pattern.base": "ALPHABETIC REQUIRED",
+        "string.pattern.base":
+          "Minimum eight characters, at least one letter and one number",
       }),
+    dateOfBirth: Joi.string().trim().required().messages({
+      "any.required": "Date of Birth is required",
+    }),
     phone: Joi.string()
       .trim()
-      .min(3)
-      .max(20)
-      .pattern(/[0-9]{10}/)
+      .min(10)
+      .pattern(/^[6-9]{1}[0-9]{9}$/)
       .required()
       .messages({
         "any.required": "MOBILE REQUIRED",
@@ -71,48 +64,40 @@ class AuthValidator {
   });
 
   loginValidator = Joi.object().keys({
-    email: Joi.string()
-      .trim()
-      .email({
-        maxDomainSegments: 2,
-        tlds: { allow: ["com", "co", "in"] },
-      })
-      .required()
-      .messages({
-        "any.required": "EMAIL REQUIRED",
-        "string.empty": " EMAIL SHOULD NOT BE EMPTY",
-        "string.email": "EMAIL IS NOT VALID",
-      }),
-    password: Joi.string()
-      .trim()
-      .min(3)
-      .max(20)
-      .pattern(/[A-Za-z]/)
-      .required()
-      .messages({
-        "any.required": "PASSWORD REQUIRED",
-        "string.empty": " PASSWORD SHOULD NOT BE EMPTY",
-        "string.min": "3 CHARACTER REQUIRED",
-        "string.max": "20 CHARACTER ONLY",
-        "string.pattern.base": "ALPHABETIC REQUIRED",
-      }),
+    name: Joi.string().trim().required().messages({
+      "any.required": "EMAIL, USERNAME or PHONE REQUIRED",
+      "string.empty": "EMAIL, USERNAME or PHONE SHOULD NOT BE EMPTY",
+    }),
+    password: Joi.string().trim().required().messages({
+      "any.required": "PASSWORD REQUIRED",
+      "string.empty": " PASSWORD SHOULD NOT BE EMPTY",
+    }),
   });
 
   forgetEmailValidator = Joi.object().keys({
     phone: Joi.string().trim().required(),
   });
   forgetPasswordValidator = Joi.object().keys({
-    email: Joi.string()
-      .trim()
-      .email({
-        maxDomainSegments: 2,
-        tlds: { allow: ["com", "co", "in"] },
-      })
+    name: Joi.string().trim().required().messages({
+      "any.required": "EMAIL, USERNAME or PHONE REQUIRED",
+      "string.empty": "EMAIL, USERNAME or PHONE SHOULD NOT BE EMPTY",
+    }),
+  });
+
+  ChangePasswordSchema = Joi.object().keys({
+    oldPassword: Joi.string().required().messages({
+      "string.empty": `Old password cannot be empty`,
+      "any.required": `Old password is required`,
+    }),
+    newPassword: Joi.string()
+      .pattern(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+      )
       .required()
       .messages({
-        "any.required": "EMAIL REQUIRED",
-        "string.empty": " EMAIL SHOULD NOT BE EMPTY",
-        "string.email": "EMAIL IS NOT VALID",
+        "string.empty": `New password cannot be empty`,
+        "any.required": `New password is required`,
+        "string.pattern.base": `New Password should be minimum 8 characters long (1 UpperCase Alphabet, 1 LowerCase Alphabet, 1 Number, 1 Special Character )`,
       }),
   });
 }

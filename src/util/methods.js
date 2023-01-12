@@ -14,10 +14,10 @@ class Methods {
     return bcrypt.compare(data, password);
   }
   async generateOtp() {
-    return Math.random().toString().slice(2, 8);
+    return Math.random().toString().slice(2, 6);
   }
   async verifyToken(token) {
-    return jwt.verify(token, process.env.SECRETKEY)
+    return jwt.verify(token, process.env.SECRETKEY);
   }
 }
 

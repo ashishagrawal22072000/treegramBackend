@@ -13,6 +13,7 @@ class AuthRouter {
     router.post("/forget-password", authController.forgetPassword);
     router.post("/forget-email", authController.forgetEmail);
     router.patch("/reset-password", authController.resetPassword);
+    router.post("/check-username", authController.checkUsername);
   };
 }
 

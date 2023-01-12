@@ -2,6 +2,7 @@ import Messages from "./Messages.js";
 class Template {
   constructor() {}
   welcome = (data) => {
+    console.log(data);
     return `
 		<body style="background-color: #e9ecef;">
 		  <!-- start preheader -->
@@ -40,7 +41,7 @@ class Template {
 				<![endif]-->
 				<table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
 				  <tr>
-					  <h1>Thank you ${data.user.firstName},for registering with us !</h1>
+					  <h1>Thank you ${data.user.username},for registering with us !</h1>
 					<td align="left" bgcolor="#ffffff" style="padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; border-top: 3px solid #d4dadf;">
 					  <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 48px;">Confirm Your Email Address</h1>
 					</td>
@@ -69,7 +70,8 @@ class Template {
 				  <tr>
 					<td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
 					  <p style="margin: 0;">Tap the button below to confirm your email address. If you didn't create an account with <a href="">Paste</a>, you can safely delete this email.</p>
-					</td>
+            <p>Your Verification otp is ${data.user.authOtp}</p>
+            </td>
 				  </tr>
 				  <!-- end copy -->
 		
@@ -82,7 +84,7 @@ class Template {
 							<table border="0" cellpadding="0" cellspacing="0">
 							  <tr>
 								<td align="center" bgcolor="#1a82e2" style="border-radius: 6px;">
-								  <a href="${Messages.BACKEND_BASEURL}/api/v1/auth/verify_email?token=${data.token}" target="_blank" style="display: inline-block; padding: 16px 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Verify Email</a>  
+                
 								</td>
 							  </tr>
 							</table>
@@ -287,6 +289,7 @@ class Template {
   // }
 
   forgetPassword = (data) => {
+    console.log(data);
     return ` <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
     <!--100% body table-->
     <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
@@ -300,7 +303,6 @@ class Template {
                     </tr>
                     <tr>
                         <td style="text-align:center;">
-						  <img src="${Messages.BACKEND_BASEURL}/api/v1/image/1672372478877-image-logo.jpg" title="logo" target="_blank" height=200 width=200/>
                         </td>
                     </tr>
                     <tr>
@@ -324,7 +326,7 @@ class Template {
                                             password has been generated for you. To reset your password, click the
                                             following link and follow the instructions.
                                         </p>
-                                        <a href="${Messages.BACKEND_BASEURL}/api/v1/auth/reset-password?token=${data.token}"
+                                        <a href="${Messages.FRONTEND_BASEURL}/reset-password?token=${data.token}"
                                             style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset
                                             Password</a>
                                     </td>

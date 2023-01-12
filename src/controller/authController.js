@@ -30,11 +30,12 @@ class AuthController {
         });
       }
       const signupData = await authService.signUp(signUpValidation.value);
+      console.log(signupData.data);
       if (signupData.status == 200) {
         const emailSend = await sendMail.mail(
           signupData.data,
           "welcome",
-          "Welcome to BracketIN"
+          "Welcome to Treegram"
         );
       }
       return res.status(signupData.status).json({
@@ -83,6 +84,7 @@ class AuthController {
         forgetPasswordValidation.value
       );
       if (forgetPasswordData.status == process.env.SUCCESS) {
+        console.log(forgetPasswordData.status);
         const emailSend = await sendMail.mail(
           forgetPasswordData.data,
           "forgetPassword",
@@ -95,6 +97,7 @@ class AuthController {
         data: forgetPasswordData.data,
       });
     } catch (err) {
+      console.log(err);
       return res.status(500).json({
         success: false,
         message: `INTERNAL SERVER ERROR`,
@@ -133,6 +136,14 @@ class AuthController {
 
   async resetPassword(req, res) {
     try {
+      const changePasswordValidation =
+        authValidator.ChangePasswordSchema.validate(req.body);
+      if (changePasswordValidation.error) {
+        return res.status(process.env.BADREQUEST).json({
+          success: false,
+          message: changePasswordValidation.error.details[0].message,
+        });
+      }
       const resetPasswordData = await authService.resetPassword(
         req.query.token,
         req.body
@@ -141,6 +152,21 @@ class AuthController {
         success: resetPasswordData.status == 200 ? true : false,
         message: resetPasswordData.message,
         data: resetPasswordData.data,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+  async checkUsername(req, res) {
+    try {
+      const userName = await authService.checkuserName(req.body);
+      return res.status(userName.status).json({
+        success: userName.status == 200 ? true : false,
+        message: userName.message,
       });
     } catch (err) {
       return res.status(500).json({
