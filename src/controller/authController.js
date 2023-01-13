@@ -1,4 +1,3 @@
-import { required } from "joi";
 import userModel from "../model/userModel.js";
 import authService from "../service/authService.js";
 import methods from "../util/methods.js";
@@ -56,13 +55,14 @@ class AuthController {
 
   async verifyEmail(req, res) {
     try {
-      const emailData = await authService.VerificationEmail(req.query);
+      const emailData = await authService.VerificationEmail(req.body);
       if (!emailData) throw new Error("User not Found");
       return res.status(emailData.status).json({
         success: emailData.status == process.env.SUCCESS ? true : false,
         message: emailData.message,
       });
     } catch (err) {
+      console.log(err);
       return res.status(500).json({
         success: false,
         message: `INTERNAL SERVER ERROR`,
@@ -164,6 +164,7 @@ class AuthController {
   }
   async checkUsername(req, res) {
     try {
+      console.log(req.body);
       const userName = await authService.checkuserName(req.body);
       return res.status(userName.status).json({
         success: userName.status == 200 ? true : false,

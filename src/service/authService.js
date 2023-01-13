@@ -103,30 +103,33 @@ class AuthService extends CommonService {
     }
   }
 
-  async VerificationEmail(data) {
-    console.log(data, "VerificationEmail");
+  async VerificationEmail({ email, otp }) {
     try {
-      const token = await methods.verifyToken(data.token);
-      console.log(token, "VerificationEmail");
-      const userLogin = await this.FindUserRepo.findByEmail(token.email);
+      const userLogin = await this.FindUserRepo.findByEmail(email);
       if (userLogin) {
-        if (userLogin.isVerified) {
-          return {
-            status: process.env.BADREQUEST,
-            message: Messages.EMAIL_ALREADY_VERIFIED,
-          };
-        } else {
+        if (userLogin.authOtp == otp) {
           userLogin.isVerified = true;
+          userLogin.authOtp = null;
           await userLogin.save();
           return {
             status: process.env.SUCCESS,
             message: Messages.USER_EMAIL_VERIFIED,
           };
+        } else if (userLogin.isVarified) {
+          return {
+            status: process.env.BADREQUEST,
+            message: Messages.EMAIL_ALREADY_VERIFIED,
+          };
+        } else {
+          return {
+            status: process.env.BADREQUEST,
+            message: Messages.OTP,
+          };
         }
       }
       if (!userLogin) {
         return {
-          status: process.env.BADREQUEST,
+          status: process.env.NOTFOUND,
           message: Messages.EMAIL_NOT_FOUND,
         };
       }
@@ -244,6 +247,7 @@ class AuthService extends CommonService {
   }
   async checkuserName({ username }) {
     try {
+      console.log(username);
       const userData = await this.FindUserRepo.findByUsername(username);
       console.log(userData);
       if (userData) {

@@ -18,7 +18,7 @@ class AuthValidator {
     email: Joi.string()
       .trim()
       .email({
-        maxDomainSegments: 2,
+        maxDomainSegments: 3,
         tlds: { allow: ["com", "co", "in"] },
       })
       .required()

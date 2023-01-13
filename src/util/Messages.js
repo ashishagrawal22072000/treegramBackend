@@ -32,4 +32,5 @@ export default {
   JWT_ERROR: "Invalid JWT token",
   EMAIL_SENT: "Verification Email sent Successfully",
   FRONTEND_BASEURL: "http://localhost:3000",
+  OTP: "OTP doesn't match",
 };
