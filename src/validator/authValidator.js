@@ -85,11 +85,11 @@ class AuthValidator {
   });
 
   ChangePasswordSchema = Joi.object().keys({
-    oldPassword: Joi.string().required().messages({
+    confirmPassword: Joi.string().required().messages({
       "string.empty": `Old password cannot be empty`,
       "any.required": `Old password is required`,
     }),
-    newPassword: Joi.string()
+    password: Joi.string()
       .pattern(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
       )
