@@ -85,8 +85,8 @@ class AuthService extends CommonService {
         };
       } else {
         const token = await methods.generateToken({
-          id: userLogin._id,
-          email: userLogin.email,
+          id: userLogin[0]._id,
+          email: userLogin[0].email,
         });
         return {
           status: process.env.SUCCESS,

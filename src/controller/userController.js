@@ -38,6 +38,25 @@ class UserController {
       });
     }
   }
+  async follow(req, res) {
+    try {
+      const followUser = await userService.followUsers(
+        req.loginUser.id,
+        req.body.follower_id
+      );
+      if (!followUser) throw new Error("User not Found");
+      return res.status(followUser.status).json({
+        success: followUser.status == process.env.SUCCESS ? true : false,
+        message: followUser.message,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
 }
 
 export default new UserController();

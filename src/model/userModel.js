@@ -47,6 +47,10 @@ const userSchema = new mongoose.Schema(
     authOtp: {
       type: Number,
     },
+    badge: {
+      type: Boolean,
+      default: false,
+    },
     created_At: {
       type: Date,
       default: new Date(),

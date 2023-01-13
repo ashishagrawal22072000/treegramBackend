@@ -9,6 +9,7 @@ class UserRouter {
   routes = (router) => {
     router.get("/:user_id", userController.userById);
     router.get("/", userController.getUserBySearch);
+    router.post("/follow", userController.follow);
   };
 }
 

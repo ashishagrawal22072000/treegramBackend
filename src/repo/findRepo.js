@@ -26,7 +26,7 @@ class FindRepo {
   async findByUsername(username) {
     return await this.model.findOne({ username });
   }
-  async findByQuery(query, attribute) {
+  async findByQuery(query, attribute = []) {
     console.log(query, attribute);
     if (attribute.length) {
       return await this.model
