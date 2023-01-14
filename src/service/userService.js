@@ -58,31 +58,22 @@ class UserService extends CommonService {
   async followUsers(user_id, follower_id) {
     try {
       const getUserById = await new FindRepo(follower).findByQuery({
-        user_id,
+        follow_from: user_id,
+        follow_to: follower_id,
       });
-      console.log(getUserById);
-      if (getUserById) {
-        console.log(getUserById);
-        const follow = getUserById.follow.filter((ele) => {
-          return ele.follower_id == follower_id;
+      if (!getUserById) {
+        const follow = await new CreateRepo(follower).create({
+          follow_from: user_id,
+          follow_to: follower_id,
         });
-        if (follow[0].status == true) {
-          follow[0].status = false;
-          await follow.save();
-        } else {
-          follow[0].status = true;
-          await follow.save();
-        }
       } else {
-        const followUser = await new CreateRepo(follower).create({
-          user_id,
-          follow: [
-            {
-              follower_id,
-              status: true,
-            },
-          ],
-        });
+        if (getUserById.status == "pending") {
+          getUserById.status = "confirm";
+          await getUserById.save();
+        } else {
+          getUserById.status = "reject";
+          await getUserById.save();
+        }
       }
       return {
         status: process.env.SUCCESS,
