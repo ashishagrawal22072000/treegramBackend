@@ -9,9 +9,17 @@ const Followers = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       ref: "userModel",
     },
-    status: {
-      type: String,
-      default: "pending",
+    follow_status: {
+      type: Boolean,
+      default: true,
+    },
+    close_status: {
+      type: Boolean,
+      default: false,
+    },
+    favouriate_status: {
+      type: Boolean,
+      default: false,
     },
     created_At: {
       type: Date,

@@ -178,6 +178,21 @@ class AuthController {
       });
     }
   }
+  async resendOtp(req, res) {
+    try {
+      const generateOtp = await authService.ResendOtp(req.body);
+      return res.status(generateOtp.status).json({
+        success: generateOtp.status == 200 ? true : false,
+        message: generateOtp.message,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
 }
 
 export default new AuthController();

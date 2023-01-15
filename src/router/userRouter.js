@@ -10,6 +10,8 @@ class UserRouter {
     router.get("/:user_id", userController.userById);
     router.get("/", userController.getUserBySearch);
     router.post("/follow", userController.follow);
+    router.post("/close-friend", userController.closeFriend);
+    router.post("/favouriate", userController.Favouriate);
   };
 }
 

@@ -33,4 +33,12 @@ export default {
   EMAIL_SENT: "Verification Email sent Successfully",
   FRONTEND_BASEURL: "http://localhost:3000",
   OTP: "OTP doesn't match",
+  USER_UPDATE: "User update Successfully",
+  FOLLOW: "Follow Successfully",
+  UNFOLLOW: "Unfollow Successfully",
+  ADD_CLOSE_FRIEND: "Close Friend Added Successfully",
+  REMOVE_CLOSE_FRIEND: "Remove from close friend successfully",
+  ADD_TO_FAVOURIATE: "Add to favorites Successfully",
+  REMOVE_FROM_FAVOURIATE: "Remove from favorites successfully",
+  RESEND_OTP: "OTP Resend Successfully",
 };

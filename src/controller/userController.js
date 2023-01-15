@@ -57,6 +57,46 @@ class UserController {
       });
     }
   }
+
+  async closeFriend(req, res) {
+    try {
+      const closeFriend = await userService.AddcloseFriends(
+        req.loginUser.id,
+        req.body.follower_id
+      );
+      if (!closeFriend) throw new Error("User not Found");
+      return res.status(closeFriend.status).json({
+        success: closeFriend.status == process.env.SUCCESS ? true : false,
+        message: closeFriend.message,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+
+  async Favouriate(req, res) {
+    try {
+      const AddFavouriate = await userService.AddToFavouriate(
+        req.loginUser.id,
+        req.body.follower_id
+      );
+      if (!AddFavouriate) throw new Error("User not Found");
+      return res.status(AddFavouriate.status).json({
+        success: AddFavouriate.status == process.env.SUCCESS ? true : false,
+        message: AddFavouriate.message,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
 }
 
 export default new UserController();

@@ -66,19 +66,87 @@ class UserService extends CommonService {
           follow_from: user_id,
           follow_to: follower_id,
         });
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.FOLLOW,
+        };
       } else {
-        if (getUserById.status == "pending") {
-          getUserById.status = "confirm";
+        if (getUserById.status == true) {
+          getUserById.status = false;
           await getUserById.save();
+          return {
+            status: process.env.SUCCESS,
+            message: Messages.UNFOLLOW,
+          };
         } else {
-          getUserById.status = "reject";
+          getUserById.status = true;
           await getUserById.save();
+          return {
+            status: process.env.SUCCESS,
+            message: Messages.FOLLOW,
+          };
         }
       }
+    } catch (err) {
+      console.log(err);
       return {
-        status: process.env.SUCCESS,
-        message: Messages.USER_FOUND,
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
       };
+    }
+  }
+
+  async AddToFavouriate(user_id, follower_id) {
+    try {
+      const favouriate = await new FindRepo(follower).findByQuery({
+        follow_from: user_id,
+        follow_to: follower_id,
+      });
+      if (favouriate.favouriate_status) {
+        favouriate.favouriate_status = false;
+        await favouriate.save();
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.REMOVE_FROM_FAVOURIATE,
+        };
+      } else {
+        favouriate.favouriate_status = true;
+        await favouriate.save();
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.ADD_TO_FAVOURIATE,
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async AddcloseFriends(user_id, friend_id) {
+    try {
+      const friend = await new FindRepo(follower).findByQuery({
+        follow_from: user_id,
+        follow_to: friend_id,
+      });
+      if (friend.close_status) {
+        friend.close_status = false;
+        await friend.save();
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.REMOVE_CLOSE_FRIEND,
+        };
+      } else {
+        friend.close_status = true;
+        await friend.save();
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.ADD_CLOSE_FRIEND,
+        };
+      }
     } catch (err) {
       console.log(err);
       return {

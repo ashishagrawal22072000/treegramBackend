@@ -247,9 +247,7 @@ class AuthService extends CommonService {
   }
   async checkuserName({ username }) {
     try {
-      console.log(username);
       const userData = await this.FindUserRepo.findByUsername(username);
-      console.log(userData);
       if (userData) {
         return {
           status: process.env.BADREQUEST,
@@ -260,6 +258,30 @@ class AuthService extends CommonService {
         status: process.env.SUCCESS,
         message: Messages.USERNAME_DOESNOT_EXISTS,
       };
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async ResendOtp({ email }) {
+    try {
+      const user = await this.FindUserRepo.findByEmail(email);
+      if (user) {
+        user.authOtp = await methods.generateOtp();
+        await user.save();
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.RESEND_OTP,
+        };
+      } else {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.EMAIL_NOT_FOUND,
+        };
+      }
     } catch (err) {
       console.log(err);
       return {

@@ -14,6 +14,7 @@ class AuthRouter {
     router.post("/forget-email", authController.forgetEmail);
     router.patch("/reset-password/:token", authController.resetPassword);
     router.post("/check-username", authController.checkUsername);
+    router.post("/resend-otp", authController.resendOtp);
   };
 }
 

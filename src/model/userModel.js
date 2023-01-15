@@ -51,6 +51,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    privacy_id: {
+      type: Number,
+      default: 1,
+    },
     created_At: {
       type: Date,
       default: new Date(),
