@@ -12,6 +12,7 @@ class UserRouter {
     router.post("/follow", userController.follow);
     router.post("/close-friend", userController.closeFriend);
     router.post("/favouriate", userController.Favouriate);
+    router.patch("/privacy", userController.AccountPrivacy);
   };
 }
 
