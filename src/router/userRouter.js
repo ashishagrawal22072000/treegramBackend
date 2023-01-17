@@ -13,6 +13,7 @@ class UserRouter {
     router.post("/close-friend", userController.closeFriend);
     router.post("/favouriate", userController.Favouriate);
     router.patch("/privacy", userController.AccountPrivacy);
+    router.patch("/account", userController.Account);
   };
 }
 

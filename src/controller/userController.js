@@ -1,4 +1,5 @@
 import userService from "../service/userService.js";
+import userValidator from "../validator/userValidator.js";
 
 class UserController {
   async userById(req, res) {
@@ -108,6 +109,33 @@ class UserController {
       return res.status(AccountPrivacy.status).json({
         success: AccountPrivacy.status == process.env.SUCCESS ? true : false,
         message: AccountPrivacy.message,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+  async Account(req, res) {
+    try {
+      const updateAccountValidation =
+        userValidator.updateAccountValidator.validate(req.body);
+      if (updateAccountValidation.error) {
+        return res.status(process.env.BADREQUEST).json({
+          success: false,
+          message: updateAccountValidation.error.details[0].message,
+        });
+      }
+      const updateAccount = await userService.UpdateAccountDetails(
+        req.loginUser.id,
+        updateAccountValidation.value
+      );
+      if (!updateAccount) throw new Error("User not Found");
+      return res.status(updateAccount.status).json({
+        success: updateAccount.status == process.env.SUCCESS ? true : false,
+        message: updateAccount.message,
       });
     } catch (err) {
       return res.status(500).json({

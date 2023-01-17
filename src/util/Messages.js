@@ -17,7 +17,7 @@ export default {
   WELCOME_EMAIL: "bracketinservices@gmail.com",
   WELCOME_PASSWORD: "ocwfmmvxacscujhc",
   Company_NAME: "BracketIn",
-  BACKEND_BASEURL: "http://localhost:8080",
+  BACKEND_BASEURL: "http://localhost:8000",
   PASSWORD_RESET_EMAIL: "Password reset link sent to your email account",
   PASSWORD_NOT_MATCH: "Password & Confirm password doesn't match",
   PASSWORD_ALREADY_USED: "New password can't be old password",
@@ -41,5 +41,5 @@ export default {
   ADD_TO_FAVOURIATE: "Add to favorites Successfully",
   REMOVE_FROM_FAVOURIATE: "Remove from favorites successfully",
   RESEND_OTP: "OTP Resend Successfully",
-  USER_UPDATE: "User update Successfully",
+  SOME_ERROR: "something went wrong",
 };

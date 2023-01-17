@@ -4,6 +4,7 @@ import userModel from "../model/userModel.js";
 import CommonService from "./commonServices.js";
 import CreateRepo from "../repo/createRepo.js";
 import follower from "../model/follower.js";
+import UpdateRepo from "../repo/updateRepo.js";
 
 class UserService extends CommonService {
   constructor() {
@@ -173,6 +174,26 @@ class UserService extends CommonService {
       }
     } catch (err) {
       console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async UpdateAccountDetails(user_id, data) {
+    try {
+      const updateAccount = await new UpdateRepo.updateById(user_id, data);
+      if (!updateAccount) {
+        return {
+          status: process.env.BADREQUEST,
+          message: Messages.SOME_ERROR,
+        };
+      }
+      return {
+        status: process.env.SUCCESS,
+        message: Messages.USER_UPDATE,
+      };
+    } catch (err) {
       return {
         status: process.env.INTERNALSERVERERROR,
         message: Messages.INTERNAL_SERVER_ERROR,

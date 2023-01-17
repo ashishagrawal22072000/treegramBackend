@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-import methods from "../util/methods.js";
-import bcrypt from "bcryptjs";
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -54,6 +52,18 @@ const userSchema = new mongoose.Schema(
     privacy_id: {
       type: Number,
       default: 1,
+    },
+    Website: {
+      type: String,
+      required: false,
+    },
+    Bio: {
+      type: String,
+      required: false,
+    },
+    Gender: {
+      type: String,
+      required: false,
     },
     created_At: {
       type: Date,
