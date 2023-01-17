@@ -92,13 +92,12 @@ paths:
       produces:
         - application/json
       requestBody:
-        description: Verifiy email request body.
+        description: Sign up request body.
         required: true
-      parameters:
-        - name: token
-          in: query
-          schema:
-            type: string
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Verify_email'
       responses:
         '200':
           description: 200 OK
@@ -126,33 +125,184 @@ paths:
                   message:
                     type: string
                     description: Something went wrong. Please try again.
+  /auth/forget-password:
+    post:
+      tags:
+        - Auth
+      operationId: forget-password
+      summary: Forget Password.
+      produces:
+        - application/json
+      requestBody:
+        description: Sign up request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Forget_password'
+      responses:
+        '200':
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: reset passowrd link send successfully.
+        '500':
+          description: 500 Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Something went wrong. Please try again.
+  /auth/forget-email:
+    post:
+      tags:
+        - Auth
+      operationId: forget-email
+      summary: Forget Email.
+      produces:
+        - application/json
+      requestBody:
+        description: Sign up request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Forget_email'
+      responses:
+        '200':
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: reset email link send successfully.
+        '500':
+          description: 500 Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+            s        description: true or false.
+                  message:
+                    type: string
+                    description: Something went wrong. Please try again.
+  /auth/reset-password/{token}:
+    post:
+      tags:
+        - Auth
+      operationId: reset -password
+      summary: Forget Email.
+      produces:
+        - application/json
+      parameters:
+        - name: token
+          in: path
+      requestBody:
+        description: Sign up request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Forget_email'
+      responses:
+        '200':
+          description: 200 OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: reset email link send successfully.
+        '500':
+          description: 500 Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true or false.
+                  message:
+                    type: string
+                    description: Something went wrong. Please try again.
+  
 components:
   schemas:
     Signup:
       properties:
-        first_name:
-          type: string
-        last_name:
+        username:
           type: string
         email:
-          type: string
-        password:
           type: string
         phone:
           type: string
-      required:
-        - first_name
-        - last_name
-        - email
-        - password
-        - phone
-    Login:
-      properties:
-        email:
+        dateOfBirth:
           type: string
         password:
           type: string
       required:
+        - username
         - email
+        - phone
+        - dateOfBirth
         - password
+    Login:
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+      required:
+        - name
+        - password
+    Verify_email:
+      properties:
+        email:
+          type: string
+        otp:
+          type: string
+      required:
+        - email
+        - otp
+    Forget_password:
+      properties:
+        name:
+          type: string
+      required:
+        - name
+    Forget_email:
+      properties:
+        phone:
+          type: string
+      required:
+        - phone
         

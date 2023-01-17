@@ -155,6 +155,30 @@ class UserService extends CommonService {
       };
     }
   }
+  async UpdateAccountPrivacy(user_id, privacy_id) {
+    try {
+      const user = await this.FindUserRepo.findById(user_id);
+      if (user) {
+        user.privacy_id = privacy_id;
+        await user.save();
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.USER_UPDATE,
+        };
+      } else {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.USER_NOT_FOUND,
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
 }
 
 export default new UserService();

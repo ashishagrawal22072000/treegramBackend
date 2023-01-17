@@ -97,6 +97,26 @@ class UserController {
       });
     }
   }
+
+  async AccountPrivacy(req, res) {
+    try {
+      const AccountPrivacy = await userService.UpdateAccountPrivacy(
+        req.loginUser.id,
+        req.body.privacy_id
+      );
+      if (!AccountPrivacy) throw new Error("User not Found");
+      return res.status(AccountPrivacy.status).json({
+        success: AccountPrivacy.status == process.env.SUCCESS ? true : false,
+        message: AccountPrivacy.message,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
 }
 
 export default new UserController();

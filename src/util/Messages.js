@@ -41,4 +41,5 @@ export default {
   ADD_TO_FAVOURIATE: "Add to favorites Successfully",
   REMOVE_FROM_FAVOURIATE: "Remove from favorites successfully",
   RESEND_OTP: "OTP Resend Successfully",
+  USER_UPDATE: "User update Successfully",
 };
