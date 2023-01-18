@@ -35,6 +35,17 @@ class FindRepo {
     }
     return await this.model.findOne(query);
   }
+
+  async findAll(query, attribute = [], limit = 0, skip = 0) {
+    if (attribute.length) {
+      return await this.model
+        .find(query)
+        .select(attribute.map((attribute) => attribute))
+        .limit(limit)
+        .skip(skip);
+    }
+    return await this.model.find(query).limit(limit).skip(skip);
+  }
   async findByPhone(phone, attribute) {
     if (attribute.length) {
       return await this.model

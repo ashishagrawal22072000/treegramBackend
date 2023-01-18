@@ -1,4 +1,5 @@
 import userService from "../service/userService.js";
+import Messages from "../util/Messages.js";
 import userValidator from "../validator/userValidator.js";
 
 class UserController {
@@ -6,12 +7,14 @@ class UserController {
     try {
       const userById = await userService.getUserById(req.params.user_id);
       if (!userById) throw new Error("User not Found");
+      console.log(userById);
       return res.status(userById.status).json({
         success: userById.status == process.env.SUCCESS ? true : false,
         message: userById.message,
         data: userById.data,
       });
     } catch (err) {
+      console.log(err);
       return res.status(500).json({
         success: false,
         message: `INTERNAL SERVER ERROR`,
@@ -139,6 +142,44 @@ class UserController {
       });
     } catch (err) {
       return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+  async FollowerList(req, res) {
+    try {
+      console.log("dfhdbfhdbf");
+      const followerList = await userService.getFollowerList(req.loginUser.id);
+
+      return res.status(followerList.status).json({
+        success: followerList.status == process.env.SUCCESS ? true : false,
+        message: followerList.message,
+        data: followerList ? followerList.data : [],
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+  async FollowingList(req, res) {
+    try {
+      const followingList = await userService.getfollowingList(
+        req.loginUser.id
+      );
+      return res.status(followingList.status).json({
+        success: followingList.status == process.env.SUCCESS ? true : false,
+        message: followingList.message,
+        data: followingList ? followingList.data : [],
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
         success: false,
         message: `INTERNAL SERVER ERROR`,
         data: err.message,

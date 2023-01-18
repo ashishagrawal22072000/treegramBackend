@@ -53,15 +53,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
-    Website: {
+    website: {
       type: String,
       required: false,
     },
-    Bio: {
+    bio: {
       type: String,
       required: false,
     },
-    Gender: {
+    gender: {
       type: String,
       required: false,
     },

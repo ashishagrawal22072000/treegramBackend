@@ -10,6 +10,7 @@ class UserService extends CommonService {
   constructor() {
     super(CommonService);
     this.FindUserRepo = new FindRepo(userModel);
+    this.UpdateUserRepo = new UpdateRepo(userModel);
   }
 
   async getUserById(id) {
@@ -182,7 +183,7 @@ class UserService extends CommonService {
   }
   async UpdateAccountDetails(user_id, data) {
     try {
-      const updateAccount = await new UpdateRepo.updateById(user_id, data);
+      const updateAccount = await this.UpdateUserRepo.updateById(user_id, data);
       if (!updateAccount) {
         return {
           status: process.env.BADREQUEST,
@@ -194,6 +195,99 @@ class UserService extends CommonService {
         message: Messages.USER_UPDATE,
       };
     } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async getFollowerList(user_id) {
+    try {
+      const followers = await new FindRepo(follower).findAll({
+        follow_to: user_id,
+        status: true,
+      });
+      console.log(user_id);
+      if (followers.length) {
+        const followerList = follower
+          .aggregate({
+            $lookup: {
+              from: "userModel",
+              localField: "follow_to",
+              forignField: "_id",
+              as: "user",
+            },
+          })
+          .exec((err, result) => {
+            if (err) {
+              console.log("error", err);
+            }
+            if (result) {
+              return {
+                status: process.env.SUCCESS,
+                message: `Follower fetched successfully,`,
+                data: result ? result : [],
+              };
+            }
+          });
+      } else {
+        return {
+          status: process.env.BADREQUEST,
+          message: `No Follower Found`,
+        };
+      }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async getfollowingList(user_id) {
+    try {
+      const following = await new FindRepo(follower).findAll({
+        follow_from: user_id,
+        status: true,
+      });
+      if (following.length) {
+        let followingList = [];
+        follower
+          .aggregate([
+            {
+              $lookup: {
+                from: "userModel",
+                localField: "follow_from",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+          ])
+          .exec((err, result) => {
+            if (err) {
+              console.log("error", err);
+            }
+            if (result) {
+              followingList.push(...result);
+              console.log(followingList, "gfgfggfgf");
+            }
+          });
+        console.log(followingList, "jgghghghghghghghg");
+
+        return {
+          status: process.env.SUCCESS,
+          message: `Follower fetched successfully,`,
+          data: followingList.length ? followingList : [],
+        };
+      } else {
+        return {
+          status: process.env.BADREQUEST,
+          message: `No Following Found`,
+        };
+      }
+    } catch (err) {
+      console.log(err);
       return {
         status: process.env.INTERNALSERVERERROR,
         message: Messages.INTERNAL_SERVER_ERROR,

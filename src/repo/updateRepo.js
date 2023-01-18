@@ -8,7 +8,7 @@ class UpdateRepo {
     return await this.model.update(query, data);
   }
   async updateById(id, data) {
-    return await this.model.updateById(id, data);
+    return await this.model.findByIdAndUpdate(id, data);
   }
 }
 
