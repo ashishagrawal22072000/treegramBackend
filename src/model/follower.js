@@ -3,11 +3,11 @@ const Followers = new mongoose.Schema(
   {
     follow_from: {
       type: Schema.Types.ObjectId,
-      ref: "userModel",
+      ref: "User",
     },
     follow_to: {
       type: Schema.Types.ObjectId,
-      ref: "userModel",
+      ref: "User",
     },
     follow_status: {
       type: Boolean,

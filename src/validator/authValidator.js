@@ -59,7 +59,7 @@ class AuthValidator {
         "string.pattern.base": "NUMBERIC REQUIRED",
       }),
     profile: Joi.string().default(
-      "./../.././public/assests/images/7074311_3551739.jpg"
+      "http://localhost:8000/api/v1/image/1674124163743-image-3551739.jpg"
     ),
   });
 

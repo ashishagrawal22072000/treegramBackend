@@ -17,7 +17,7 @@ class AuthController {
     return res.status(userLogin.status).json({
       success: userLogin.status == process.env.SUCCESS ? true : false,
       message: userLogin.message,
-      token: userLogin.token,
+      data: userLogin.data,
     });
   }
   async signUp(req, res) {

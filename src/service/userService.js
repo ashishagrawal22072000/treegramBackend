@@ -5,6 +5,7 @@ import CommonService from "./commonServices.js";
 import CreateRepo from "../repo/createRepo.js";
 import follower from "../model/follower.js";
 import UpdateRepo from "../repo/updateRepo.js";
+import lookupRepo from "../repo/lookupRepo.js";
 
 class UserService extends CommonService {
   constructor() {
@@ -202,41 +203,23 @@ class UserService extends CommonService {
       };
     }
   }
-  async getFollowerList(user_id) {
+  async getFollowerList(user_id, { limit, skip }) {
     try {
-      const followers = await new FindRepo(follower).findAll({
-        follow_to: user_id,
-        status: true,
-      });
-      console.log(user_id);
-      if (followers.length) {
-        const followerList = follower
-          .aggregate({
-            $lookup: {
-              from: "userModel",
-              localField: "follow_to",
-              forignField: "_id",
-              as: "user",
-            },
-          })
-          .exec((err, result) => {
-            if (err) {
-              console.log("error", err);
-            }
-            if (result) {
-              return {
-                status: process.env.SUCCESS,
-                message: `Follower fetched successfully,`,
-                data: result ? result : [],
-              };
-            }
-          });
-      } else {
-        return {
-          status: process.env.BADREQUEST,
-          message: `No Follower Found`,
-        };
-      }
+      const followers = await new FindRepo(follower).findAll(
+        {
+          follow_to: user_id,
+          status: true,
+        },
+        "follow_from",
+        limit,
+        skip,
+        { model: "follow_from", attribute: "username profile email" }
+      );
+      return {
+        status: process.env.SUCCESS,
+        message: `Follower fetched successfully,`,
+        data: followers.length ? followers : [],
+      };
     } catch (err) {
       console.log(err);
       return {
@@ -245,45 +228,110 @@ class UserService extends CommonService {
       };
     }
   }
-  async getfollowingList(user_id) {
+  async getfollowingList(user_id, { limit, skip }) {
     try {
-      const following = await new FindRepo(follower).findAll({
-        follow_from: user_id,
-        status: true,
-      });
-      if (following.length) {
-        let followingList = [];
-        follower
-          .aggregate([
-            {
-              $lookup: {
-                from: "userModel",
-                localField: "follow_from",
-                foreignField: "_id",
-                as: "user",
-              },
-            },
-          ])
-          .exec((err, result) => {
-            if (err) {
-              console.log("error", err);
-            }
-            if (result) {
-              followingList.push(...result);
-              console.log(followingList, "gfgfggfgf");
-            }
-          });
-        console.log(followingList, "jgghghghghghghghg");
+      const following = await new FindRepo(follower).findAll(
+        {
+          follow_from: user_id,
+          follow_status: true,
+        },
+        "follow_to",
+        limit,
+        skip,
+        { model: "follow_to", attribute: "username profile email" }
+      );
 
+      return {
+        status: process.env.SUCCESS,
+        message: `Follower fetched successfully,`,
+        data: following.length ? following : [],
+      };
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async getCloseFriendList(user_id, { limit, skip }) {
+    try {
+      const closeFriend = await new FindRepo(follower).findAll(
+        {
+          follow_from: user_id,
+          close_status: true,
+        },
+        "follow_to",
+        limit,
+        skip,
+        { model: "follow_to", attribute: "username profile email" }
+      );
+
+      return {
+        status: process.env.SUCCESS,
+        message: `close friend fetched successfully,`,
+        data: closeFriend.length ? closeFriend : [],
+      };
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async getFavouriateList(user_id, { limit, skip }) {
+    try {
+      const FavouriateList = await new FindRepo(follower).findAll(
+        {
+          follow_from: user_id,
+          favouriate_status: true,
+        },
+        "follow_to",
+        limit,
+        skip,
+        { model: "follow_to", attribute: "username profile email" }
+      );
+
+      return {
+        status: process.env.SUCCESS,
+        message: `favouriates fetched successfully,`,
+        data: FavouriateList.length ? FavouriateList : [],
+      };
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async getUserList(user_id, { limit, skip }) {
+    try {
+      const userList = await this.FindUserRepo.findAll(
+        {
+          _id: { $ne: user_id },
+        },
+        "username email profile badge",
+        limit,
+        skip
+      );
+
+      if (userList.length) {
+        let users = [];
+        for (let i = 0; i < userList.length; i++) {
+          const data = await new FindRepo(follower).findByQuery({
+            follow_from: user_id,
+            follow_to: userList[i]._id,
+          });
+          if (!data) users.push(userList[i]);
+        }
+        console.log(users.length);
         return {
           status: process.env.SUCCESS,
-          message: `Follower fetched successfully,`,
-          data: followingList.length ? followingList : [],
-        };
-      } else {
-        return {
-          status: process.env.BADREQUEST,
-          message: `No Following Found`,
+          message: `favouriates fetched successfully,`,
+          data: users.length ? users : [],
         };
       }
     } catch (err) {

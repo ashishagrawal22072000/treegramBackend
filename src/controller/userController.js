@@ -151,12 +151,15 @@ class UserController {
   async FollowerList(req, res) {
     try {
       console.log("dfhdbfhdbf");
-      const followerList = await userService.getFollowerList(req.loginUser.id);
+      const followerList = await userService.getFollowerList(
+        req.loginUser.id,
+        req.query
+      );
 
       return res.status(followerList.status).json({
         success: followerList.status == process.env.SUCCESS ? true : false,
         message: followerList.message,
-        data: followerList ? followerList.data : [],
+        data: followerList.data,
       });
     } catch (err) {
       console.log(err);
@@ -170,12 +173,75 @@ class UserController {
   async FollowingList(req, res) {
     try {
       const followingList = await userService.getfollowingList(
-        req.loginUser.id
+        req.loginUser.id,
+        req.query
       );
       return res.status(followingList.status).json({
         success: followingList.status == process.env.SUCCESS ? true : false,
         message: followingList.message,
-        data: followingList ? followingList.data : [],
+        data: followingList.data,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+  async closeFriendList(req, res) {
+    try {
+      const closeFriendList = await userService.getCloseFriendList(
+        req.loginUser.id,
+        req,
+        query
+      );
+      return res.status(closeFriendList.status).json({
+        success: closeFriendList.status == process.env.SUCCESS ? true : false,
+        message: closeFriendList.message,
+        data: closeFriendList.data,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+
+  async FavouriateList(req, res) {
+    try {
+      const favouriateList = await userService.getFavouriateList(
+        req.loginUser.id,
+        req.query
+      );
+      return res.status(favouriateList.status).json({
+        success: favouriateList.status == process.env.SUCCESS ? true : false,
+        message: favouriateList.message,
+        data: favouriateList.data,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+  async UserList(req, res) {
+    try {
+      const userList = await userService.getUserList(
+        req.loginUser.id,
+        req.query
+      );
+      return res.status(userList.status).json({
+        success: userList.status == process.env.SUCCESS ? true : false,
+        message: userList.message,
+        data: userList.data,
       });
     } catch (err) {
       console.log(err);

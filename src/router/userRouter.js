@@ -15,6 +15,9 @@ class UserRouter {
     router.patch("/account", userController.Account);
     router.get("/follower-list", userController.FollowerList);
     router.get("/following-list", userController.FollowingList);
+    router.get("/friend-list", userController.closeFriendList);
+    router.get("/favouriate-list", userController.FavouriateList);
+    router.get("/user-list", userController.UserList);
   };
 }
 

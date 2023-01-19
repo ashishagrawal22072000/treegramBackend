@@ -26,7 +26,7 @@ export default {
   IMAGE_NOT_FOUND: "Image not Found",
   IMAGE_UPLOADED: "Image Uploaded successfully",
   MONGOSTRING:
-    "mongodb+srv://amit1910:Amit1910@cluster0.ikoefao.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://ashish:ashish123@cluster0.n8lqmm7.mongodb.net/?retryWrites=true&w=majority",
   EMAIL_ALREADY_VERIFIED: "Email already verified",
   AUTH_ERROR: "Token is required",
   JWT_ERROR: "Invalid JWT token",

@@ -32,8 +32,9 @@ class AuthService extends CommonService {
   async signUp(data) {
     try {
       const emailExist = await this.FindUserRepo.findByEmail(data.email);
-      const phoneExist = await this.FindUserRepo.findByEmail(data.phone);
+      const phoneExist = await this.FindUserRepo.findByPhone(data.phone);
       if (emailExist || phoneExist) {
+        console.log(emailExist, phoneExist);
         return {
           status: process.env.BADREQUEST,
           message: Messages.USER_EXISTS,
@@ -91,7 +92,7 @@ class AuthService extends CommonService {
         return {
           status: process.env.SUCCESS,
           message: Messages.LOGIN_SUCCESS,
-          token: token,
+          data: { user: userLogin[0], token },
         };
       }
     } catch (err) {

@@ -26,27 +26,22 @@ class FindRepo {
   async findByUsername(username) {
     return await this.model.findOne({ username });
   }
-  async findByQuery(query, attribute = []) {
-    console.log(query, attribute);
-    if (attribute.length) {
-      return await this.model
-        .findOne(query)
-        .select(attribute.map((attribute) => attribute));
-    }
-    return await this.model.findOne(query);
+  async findByQuery(query, attribute = "", populate = {}) {
+    return await this.model
+      .findOne(query)
+      .select(attribute)
+      .populate(populate?.model, populate?.attribute);
   }
 
-  async findAll(query, attribute = [], limit = 0, skip = 0) {
-    if (attribute.length) {
-      return await this.model
-        .find(query)
-        .select(attribute.map((attribute) => attribute))
-        .limit(limit)
-        .skip(skip);
-    }
-    return await this.model.find(query).limit(limit).skip(skip);
+  async findAll(query, attribute = "", limit = 0, skip = 0, populate = {}) {
+    return await this.model
+      .find(query)
+      .select(attribute)
+      .limit(limit)
+      .skip(skip)
+      .populate(populate?.model, populate?.attribute);
   }
-  async findByPhone(phone, attribute) {
+  async findByPhone(phone, attribute = []) {
     if (attribute.length) {
       return await this.model
         .findOne({ phone })
