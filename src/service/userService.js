@@ -342,6 +342,7 @@ class UserService extends CommonService {
       };
     }
   }
+
 }
 
 export default new UserService();

@@ -252,6 +252,25 @@ class UserController {
       });
     }
   }
+  async getAuthUser(req, res) {
+    try {
+      const authUser = await userService.getUserById(
+        req.loginUser.id,
+      );
+      return res.status(authUser.status).json({
+        success: authUser.status == process.env.SUCCESS ? true : false,
+        message: authUser.message,
+        data: authUser.data,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
 }
 
 export default new UserController();

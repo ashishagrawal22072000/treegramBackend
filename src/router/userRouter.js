@@ -8,6 +8,7 @@ class UserRouter {
   }
   routes = (router) => {
     router.get("/", userController.getUserBySearch);
+    router.get("/authuser", userController.getAuthUser);
     router.post("/follow", userController.follow);
     router.post("/close-friend", userController.closeFriend);
     router.post("/favouriate", userController.Favouriate);

@@ -4,6 +4,7 @@ import methods from "../util/methods.js";
 
 export const Auth = async (req, res, next) => {
   try {
+    console.log(req.headers);
     if (!req.headers.authorization) {
       return res
         .status(process.env.UNAUTHORIZED)
@@ -27,6 +28,7 @@ export const Auth = async (req, res, next) => {
       });
     }
   } catch (err) {
+    console.log(err);
     return res.status(process.env.INTERNALSERVERERROR).json({
       success: false,
       message: Messages.JWT_ERROR,
