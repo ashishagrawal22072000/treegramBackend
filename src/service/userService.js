@@ -64,6 +64,7 @@ class UserService extends CommonService {
         follow_from: user_id,
         follow_to: follower_id,
       });
+      console.log(getUserById)
       if (!getUserById) {
         const follow = await new CreateRepo(follower).create({
           follow_from: user_id,
@@ -74,15 +75,16 @@ class UserService extends CommonService {
           message: Messages.FOLLOW,
         };
       } else {
-        if (getUserById.status == true) {
-          getUserById.status = false;
+        if (getUserById.follow_status) {
+          console.log(getUserById.status)
+          getUserById.follow_status = false;
           await getUserById.save();
           return {
             status: process.env.SUCCESS,
             message: Messages.UNFOLLOW,
           };
         } else {
-          getUserById.status = true;
+          getUserById.follow_status = true;
           await getUserById.save();
           return {
             status: process.env.SUCCESS,

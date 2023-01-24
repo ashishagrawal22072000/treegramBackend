@@ -4,7 +4,6 @@ import methods from "../util/methods.js";
 
 export const Auth = async (req, res, next) => {
   try {
-    console.log(req.headers);
     if (!req.headers.authorization) {
       return res
         .status(process.env.UNAUTHORIZED)
