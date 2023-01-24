@@ -13,6 +13,7 @@ class UserValidator {
         "string.pattern.base":
           "Username Only contains alphanumeric characters, underscore and dot",
       }),
+    name: Joi.string().allow(""),
     email: Joi.string()
       .trim()
       .email({
