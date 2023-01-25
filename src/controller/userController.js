@@ -271,6 +271,26 @@ class UserController {
       });
     }
   }
+  async ViewProfile(req, res) {
+    try {
+      const authUser = await userService.viewProfile(
+        req.loginUser.id,
+        req.body
+      );
+      return res.status(authUser.status).json({
+        success: authUser.status == process.env.SUCCESS ? true : false,
+        message: authUser.message,
+        data: authUser.data,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
 }
 
 export default new UserController();

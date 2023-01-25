@@ -205,23 +205,33 @@ class UserService extends CommonService {
       };
     }
   }
-  async getFollowerList(user_id, { limit, skip }) {
+  async getFollowerList(user_id, { username, limit, skip }) {
     try {
-      const followers = await new FindRepo(follower).findAll(
-        {
-          follow_to: user_id,
-          status: true,
-        },
-        "follow_from",
-        limit,
-        skip,
-        { model: "follow_from", attribute: "username profile email" }
-      );
-      return {
-        status: process.env.SUCCESS,
-        message: `Follower fetched successfully,`,
-        data: followers.length ? followers : [],
-      };
+      const user = await this.FindUserRepo.findByUsername(username);
+      if (user) {
+        const followers = await new FindRepo(follower).findAll(
+          {
+            follow_to: user._id,
+            status: true,
+          },
+          "follow_from",
+          limit,
+          skip,
+          { model: "follow_from", attribute: "username profile email" }
+        );
+        return {
+          status: process.env.SUCCESS,
+          message: `Follower fetched successfully,`,
+          data: followers.length ? followers : [],
+        };
+      }
+      else {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.USER_NOT_FOUND
+        }
+      }
+
     } catch (err) {
       console.log(err);
       return {
@@ -230,24 +240,33 @@ class UserService extends CommonService {
       };
     }
   }
-  async getfollowingList(user_id, { limit, skip }) {
+  async getfollowingList(user_id, { username, limit, skip }) {
     try {
-      const following = await new FindRepo(follower).findAll(
-        {
-          follow_from: user_id,
-          follow_status: true,
-        },
-        "follow_to",
-        limit,
-        skip,
-        { model: "follow_to", attribute: "username profile email" }
-      );
+      const user = await this.FindUserRepo.findByUsername(username);
+      if (user) {
+        const following = await new FindRepo(follower).findAll(
+          {
+            follow_from: user._id,
+            follow_status: true,
+          },
+          "follow_to",
+          limit,
+          skip,
+          { model: "follow_to", attribute: "username profile email" }
+        );
 
-      return {
-        status: process.env.SUCCESS,
-        message: `Follower fetched successfully,`,
-        data: following.length ? following : [],
-      };
+        return {
+          status: process.env.SUCCESS,
+          message: `Follower fetched successfully,`,
+          data: following.length ? following : [],
+        };
+      } else {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.USER_NOT_FOUND
+        }
+      }
+
     } catch (err) {
       console.log(err);
       return {
@@ -335,6 +354,36 @@ class UserService extends CommonService {
           message: `favouriates fetched successfully,`,
           data: users.length ? users : [],
         };
+      }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async viewProfile(user_id, { username }) {
+    try {
+      const user = await this.FindUserRepo.findByUsername(username, "username name profile privacy_id bio website badge");
+      if (user) {
+        const followers = await new FindRepo(follower).findAll({ follow_to: user._id })
+        const followings = await new FindRepo(follower).findAll({ follow_from: user._id })
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.PROFILE_FETCHED,
+          data: {
+            user,
+            follower: followers ? followers.length : 0,
+            following: followings ? followings.length : 0
+          }
+        }
+      } else {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.USER_NOT_FOUND
+        }
       }
     } catch (err) {
       console.log(err);

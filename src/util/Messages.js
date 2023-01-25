@@ -42,4 +42,5 @@ export default {
   REMOVE_FROM_FAVOURIATE: "Remove from favorites successfully",
   RESEND_OTP: "OTP Resend Successfully",
   SOME_ERROR: "something went wrong",
+  PROFILE_FETCHED: "profile fetched successfully",
 };

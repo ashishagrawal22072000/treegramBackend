@@ -23,8 +23,8 @@ class FindRepo {
   async findByPhone(phone) {
     return await this.model.findOne({ phone });
   }
-  async findByUsername(username) {
-    return await this.model.findOne({ username });
+  async findByUsername(username, select = "") {
+    return await this.model.findOne({ username }).select(select);
   }
   async findByQuery(query, attribute = "", populate = {}) {
     return await this.model

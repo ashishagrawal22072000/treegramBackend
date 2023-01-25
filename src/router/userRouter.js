@@ -19,6 +19,7 @@ class UserRouter {
     router.get("/friend-list", userController.closeFriendList);
     router.get("/favouriate-list", userController.FavouriateList);
     router.get("/user-list", userController.UserList);
+    router.get("/view-profile", userController.ViewProfile);
   };
 }
 

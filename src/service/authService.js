@@ -92,7 +92,7 @@ class AuthService extends CommonService {
         return {
           status: process.env.SUCCESS,
           message: Messages.LOGIN_SUCCESS,
-          data: { user: userLogin[0], token },
+          data: { user: { username: userLogin[0].username, profile: userLogin[0].profile }, token },
         };
       }
     } catch (err) {
