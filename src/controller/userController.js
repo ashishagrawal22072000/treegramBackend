@@ -275,7 +275,7 @@ class UserController {
     try {
       const authUser = await userService.viewProfile(
         req.loginUser.id,
-        req.body
+        req.query
       );
       return res.status(authUser.status).json({
         success: authUser.status == process.env.SUCCESS ? true : false,
