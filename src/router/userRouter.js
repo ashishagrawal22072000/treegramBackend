@@ -20,6 +20,7 @@ class UserRouter {
     router.get("/favouriate-list", userController.FavouriateList);
     router.get("/user-list", userController.UserList);
     router.get("/view-profile?:username", userController.ViewProfile);
+    router.delete("/follower/:id", userController.deleteFollower);
   };
 }
 

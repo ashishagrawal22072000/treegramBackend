@@ -43,4 +43,5 @@ export default {
   RESEND_OTP: "OTP Resend Successfully",
   SOME_ERROR: "something went wrong",
   PROFILE_FETCHED: "profile fetched successfully",
+  FOLLOWER_DELETED: "follower deleted successfully"
 };

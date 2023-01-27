@@ -291,6 +291,27 @@ class UserController {
       });
     }
   }
+
+  async deleteFollower(req, res) {
+    try {
+      const user = await userService.deleteFollower(
+        req.loginUser.id,
+        req.params
+      );
+      return res.status(user.status).json({
+        success: user.status == process.env.SUCCESS ? true : false,
+        message: user.message,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+
+  }
 }
 
 export default new UserController();

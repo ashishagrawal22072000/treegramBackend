@@ -6,6 +6,7 @@ import CreateRepo from "../repo/createRepo.js";
 import follower from "../model/follower.js";
 import UpdateRepo from "../repo/updateRepo.js";
 import lookupRepo from "../repo/lookupRepo.js";
+import DeleteRepo from "../repo/deleteRepo.js";
 
 class UserService extends CommonService {
   constructor() {
@@ -368,8 +369,8 @@ class UserService extends CommonService {
     try {
       const user = await this.FindUserRepo.findByUsername(username, "username name profile privacy_id bio website badge");
       if (user) {
-        const followers = await new FindRepo(follower).findAll({ follow_to: user._id })
-        const followings = await new FindRepo(follower).findAll({ follow_from: user._id })
+        const followers = await new FindRepo(follower).findAll({ follow_to: user._id, follow_status: true })
+        const followings = await new FindRepo(follower).findAll({ follow_from: user._id, follow_status: true })
         return {
           status: process.env.SUCCESS,
           message: Messages.PROFILE_FETCHED,
@@ -393,7 +394,28 @@ class UserService extends CommonService {
       };
     }
   }
-
+  async deleteFollower(user_id, { id }) {
+    try {
+      const follow = await new DeleteRepo(follower).delete(id)
+      if (follow) {
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.FOLLOWER_DELETED,
+        }
+      } else {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.USER_NOT_FOUND
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
 }
 
 export default new UserService();
