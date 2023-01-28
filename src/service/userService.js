@@ -76,22 +76,27 @@ class UserService extends CommonService {
           message: Messages.FOLLOW,
         };
       } else {
-        if (getUserById.follow_status) {
-          console.log(getUserById.status)
-          getUserById.follow_status = false;
-          await getUserById.save();
-          return {
-            status: process.env.SUCCESS,
-            message: Messages.UNFOLLOW,
-          };
-        } else {
-          getUserById.follow_status = true;
-          await getUserById.save();
-          return {
-            status: process.env.SUCCESS,
-            message: Messages.FOLLOW,
-          };
-        }
+        getUserById.follow_status = follow_status;
+        return {
+          status: process.env.SUCCESS,
+          message: Messages.FOLLOW,
+        };
+        // if (getUserById.follow_status) {
+        //   console.log(getUserById.status)
+        //   getUserById.follow_status = false;
+        //   await getUserById.save();
+        //   return {
+        //     status: process.env.SUCCESS,
+        //     message: Messages.UNFOLLOW,
+        //   };
+        // } else {
+        //   getUserById.follow_status = true;
+        //   await getUserById.save();
+        //   return {
+        //     status: process.env.SUCCESS,
+        //     message: Messages.FOLLOW,
+        //   };
+        // }
       }
     } catch (err) {
       console.log(err);
