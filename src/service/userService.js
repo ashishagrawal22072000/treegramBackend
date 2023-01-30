@@ -239,7 +239,7 @@ class UserService extends CommonService {
         const followers = await new FindRepo(follower).findAll(
           {
             follow_to: user._id,
-            status: true,
+            follow_status: "confirm" || "pending",
           },
           "follow_from",
           limit,
