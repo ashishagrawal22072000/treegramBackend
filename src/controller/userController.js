@@ -46,12 +46,13 @@ class UserController {
     try {
       const followUser = await userService.followUsers(
         req.loginUser.id,
-        req.body.follower_id
+        req.body
       );
       if (!followUser) throw new Error("User not Found");
       return res.status(followUser.status).json({
         success: followUser.status == process.env.SUCCESS ? true : false,
         message: followUser.message,
+        data: followUser.data
       });
     } catch (err) {
       return res.status(500).json({

@@ -14,8 +14,8 @@ class FindRepo {
       .skip(skip);
   }
 
-  async findById(id) {
-    return await this.model.findById(id);
+  async findById(id, select = "") {
+    return await this.model.findById(id).select(select);
   }
   async findByEmail(email) {
     return await this.model.findOne({ email });

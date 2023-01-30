@@ -10,8 +10,7 @@ const Followers = new mongoose.Schema(
       ref: "User",
     },
     follow_status: {
-      type: Boolean,
-      default: true,
+      type: String,
     },
     close_status: {
       type: Boolean,

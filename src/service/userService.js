@@ -7,7 +7,6 @@ import follower from "../model/follower.js";
 import UpdateRepo from "../repo/updateRepo.js";
 import lookupRepo from "../repo/lookupRepo.js";
 import DeleteRepo from "../repo/deleteRepo.js";
-
 class UserService extends CommonService {
   constructor() {
     super(CommonService);
@@ -59,45 +58,67 @@ class UserService extends CommonService {
     }
   }
 
-  async followUsers(user_id, follower_id) {
+  async followUsers(user_id, { follower_id, follow_status }) {
     try {
+      let user = await this.FindUserRepo.findById(follower_id, "username profile name privacy_id badge");
       const getUserById = await new FindRepo(follower).findByQuery({
         follow_from: user_id,
         follow_to: follower_id,
       });
-      console.log(getUserById)
       if (!getUserById) {
         const follow = await new CreateRepo(follower).create({
           follow_from: user_id,
           follow_to: follower_id,
+          follow_status
         });
-        return {
-          status: process.env.SUCCESS,
-          message: Messages.FOLLOW,
-        };
       } else {
-        getUserById.follow_status = follow_status;
-        return {
-          status: process.env.SUCCESS,
-          message: Messages.FOLLOW,
-        };
-        // if (getUserById.follow_status) {
-        //   console.log(getUserById.status)
-        //   getUserById.follow_status = false;
-        //   await getUserById.save();
-        //   return {
-        //     status: process.env.SUCCESS,
-        //     message: Messages.UNFOLLOW,
-        //   };
-        // } else {
-        //   getUserById.follow_status = true;
-        //   await getUserById.save();
-        //   return {
-        //     status: process.env.SUCCESS,
-        //     message: Messages.FOLLOW,
-        //   };
-        // }
+        if (follow_status == 'pending') {
+          const follow = await new UpdateRepo(follower).update({
+            follow_from: user_id,
+            follow_to: follower_id
+          }, { follow_status })
+
+        } else {
+          const follow = await new UpdateRepo(follower).update({
+            follow_from: user_id,
+            follow_to: follower_id
+          }, { follow_status })
+        }
       }
+      return {
+        status: process.env.SUCCESS,
+        message: Messages.FOLLOW,
+        data: { ...JSON.parse(JSON.stringify(user)), follow_status }
+      };
+      // if (!getUserById) {
+      //   
+      //   return {
+      //     status: process.env.SUCCESS,
+      //     message: Messages.FOLLOW,
+      //   };
+      // } else {
+      //   getUserById.follow_status = follow_status;
+      //   return {
+      //     status: process.env.SUCCESS,
+      //     message: Messages.FOLLOW,
+      //   };
+      // if (getUserById.follow_status) {
+      //   console.log(getUserById.status)
+      //   getUserById.follow_status = false;
+      //   await getUserById.save();
+      //   return {
+      //     status: process.env.SUCCESS,
+      //     message: Messages.UNFOLLOW,
+      //   };
+      // } else {
+      //   getUserById.follow_status = true;
+      //   await getUserById.save();
+      //   return {
+      //     status: process.env.SUCCESS,
+      //     message: Messages.FOLLOW,
+      //   };
+      // }
+
     } catch (err) {
       console.log(err);
       return {
@@ -223,12 +244,12 @@ class UserService extends CommonService {
           "follow_from",
           limit,
           skip,
-          { model: "follow_from", attribute: "username profile email" }
+          { model: "follow_from", attribute: "username profile name privacy_id badge" }
         );
         return {
           status: process.env.SUCCESS,
           message: `Follower fetched successfully,`,
-          data: followers.length ? followers : [],
+          data: followers.length ? followers.map((ele) => JSON.parse(JSON.stringify(ele.follow_from))) : [],
         };
       }
       else {
@@ -253,18 +274,18 @@ class UserService extends CommonService {
         const following = await new FindRepo(follower).findAll(
           {
             follow_from: user._id,
-            follow_status: true,
+            follow_status: "confirm" || "pending",
           },
           "follow_to",
           limit,
           skip,
-          { model: "follow_to", attribute: "username profile email" }
+          { model: "follow_to", attribute: "username profile name privacy_id badge" }
         );
 
         return {
           status: process.env.SUCCESS,
           message: `Follower fetched successfully,`,
-          data: following.length ? following : [],
+          data: following.length ? following.map((ele) => JSON.parse(JSON.stringify(ele.follow_to))) : [],
         };
       } else {
         return {
@@ -291,13 +312,13 @@ class UserService extends CommonService {
         "follow_to",
         limit,
         skip,
-        { model: "follow_to", attribute: "username profile email" }
+        { model: "follow_to", attribute: "username profile name privacy_id badge" }
       );
 
       return {
         status: process.env.SUCCESS,
         message: `close friend fetched successfully,`,
-        data: closeFriend.length ? closeFriend : [],
+        data: closeFriend.length ? closeFriend.map((ele) => JSON.parse(JSON.stringify(ele.follow_to))) : [],
       };
     } catch (err) {
       console.log(err);
@@ -318,13 +339,13 @@ class UserService extends CommonService {
         "follow_to",
         limit,
         skip,
-        { model: "follow_to", attribute: "username profile email" }
+        { model: "follow_to", attribute: "username profile name privacy_id badge" }
       );
 
       return {
         status: process.env.SUCCESS,
         message: `favouriates fetched successfully,`,
-        data: FavouriateList.length ? FavouriateList : [],
+        data: FavouriateList.length ? FavouriateList.map((ele) => JSON.parse(JSON.stringify(ele.follow_to))) : [],
       };
     } catch (err) {
       console.log(err);
