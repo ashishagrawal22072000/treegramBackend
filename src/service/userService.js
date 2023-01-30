@@ -395,8 +395,8 @@ class UserService extends CommonService {
     try {
       const user = await this.FindUserRepo.findByUsername(username, "username name profile privacy_id bio website badge");
       if (user) {
-        const followers = await new FindRepo(follower).findAll({ follow_to: user._id, follow_status: true })
-        const followings = await new FindRepo(follower).findAll({ follow_from: user._id, follow_status: true })
+        const followers = await new FindRepo(follower).findAll({ follow_to: user._id, follow_status: "confirm" || "pending" })
+        const followings = await new FindRepo(follower).findAll({ follow_from: user._id, follow_status: "confirm" || "pending" })
         return {
           status: process.env.SUCCESS,
           message: Messages.PROFILE_FETCHED,
