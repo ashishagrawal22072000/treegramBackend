@@ -10,7 +10,7 @@ import DeleteRepo from "../repo/deleteRepo.js";
 import postModel from "../model/postModel.js";
 import hashtagModel from "../model/hashtagModel.js";
 import tagModel from "../model/tagModel.js";
-
+import likeModel from "../model/like.js";
 class FeedService extends CommonService {
     constructor() {
         super(CommonService);
@@ -469,7 +469,74 @@ class FeedService extends CommonService {
         }
     }
 
+    async getSinglePost(id) {
+        try {
+            const post = await this.FindUserRepo.findById(id);
+            if (!post)
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.POST_NOT_FOUND
+                }
+            else {
+                const like = await new FindRepo(likeModel).findByQuery({ post_id: post._id }, "like_count")
+                console.log(post)
+                const tags = await new FindRepo(tagModel).findByQuery({ post_id: post._id }, "post_id tags")
+                return {
+                    status: process.env.SUCCESS,
+                    message: Messages.POST_FOUND,
+                    data: { ...JSON.parse(JSON.stringify(post)), like_count: like.like_count, tags }
+                }
+            }
+            // return {
+            //     status: process.env.SUCCESS,
+            //     message: Messages.POST_FOUND,
+            //     data: post
+            // }
 
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
+    async likePost(user_id, data) {
+        try {
+            const like = await new FindRepo(likeModel).findByQuery({ user_id, post_id: data._id })
+            console.log(data._id)
+            if (!like) {
+                const createLike = await new CreateRepo(likeModel).create({ user_id, post_id: data._id, like_status: true, like_count: data.like_count + 1 })
+                if (!createLike) throw new Error(createLike.message)
+                return {
+                    status: process.env.SUCCESS,
+                    message: Messages.POST_LIKE,
+                }
+            } else {
+                if (like.like_status) {
+                    const updateLike = await new UpdateRepo(likeModel).update({ _id: like._id }, { like_status: false, like_count: like.like_count - 1 })
+                    if (!updateLike) throw new Error(updateLike.message)
+                    return {
+                        status: process.env.SUCCESS,
+                        message: Messages.POST_UNLIKE,
+                    }
+                } else {
+                    const updateLike = await new UpdateRepo(likeModel).update({ _id: like._id }, { like_status: true, like_count: like.like_count + 1 })
+                    if (!updateLike) throw new Error(updateLike.message)
+                    return {
+                        status: process.env.SUCCESS,
+                        message: Messages.POST_LIKE,
+                    }
+                }
+            }
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
 
 }
 

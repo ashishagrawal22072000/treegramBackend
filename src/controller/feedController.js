@@ -30,6 +30,49 @@ class feedController {
             });
         }
     }
+
+
+    async getSinglePost(req, res) {
+        try {
+            const post = await feedService.getSinglePost(req.params.id);
+            return res.status(post.status).json({
+                success: post.status == process.env.SUCCESS ? true : false,
+                message: post.message,
+                data: post.data
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
+    async likePost(req, res) {
+        try {
+            const post = await feedService.getSinglePost(req.params.post_id);
+            console.log(post)
+            if (post.status == process.env.SUCCESS) {
+                const like = await feedService.likePost(req.loginUser.id, post.data)
+                return res.status(like.status).json({
+                    success: like.status == process.env.SUCCESS ? true : false,
+                    message: like.message,
+                })
+            }
+            return res.status(post.status).json({
+                success: false,
+                message: post.message
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
     // async userById(req, res) {
     //     try {
     //         const userById = await userService.getUserById(req.params.user_id);
