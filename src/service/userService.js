@@ -60,6 +60,7 @@ class UserService extends CommonService {
 
   async followUsers(user_id, { follower_id, follow_status }) {
     try {
+      console.log(follow_status, follower_id);
       let user = await this.FindUserRepo.findById(follower_id, "username profile name privacy_id badge");
       const getUserById = await new FindRepo(follower).findByQuery({
         follow_from: user_id,
@@ -239,9 +240,9 @@ class UserService extends CommonService {
         const followers = await new FindRepo(follower).findAll(
           {
             follow_to: user._id,
-            follow_status: "confirm" || "pending",
+            $or: [{ follow_status: "confirm" }, { follow_status: "pending" }],
           },
-          "follow_from",
+          "follow_from follow_status",
           limit,
           skip,
           { model: "follow_from", attribute: "username profile name privacy_id badge" }
@@ -249,7 +250,9 @@ class UserService extends CommonService {
         return {
           status: process.env.SUCCESS,
           message: `Follower fetched successfully,`,
-          data: followers.length ? followers.map((ele) => JSON.parse(JSON.stringify(ele.follow_from))) : [],
+          data: followers.length ? followers.map((ele) => {
+            return { ...JSON.parse(JSON.stringify(ele.follow_from)), follow_status: ele.follow_status }
+          }) : [],
         };
       }
       else {
@@ -274,18 +277,21 @@ class UserService extends CommonService {
         const following = await new FindRepo(follower).findAll(
           {
             follow_from: user._id,
-            follow_status: "confirm" || "pending",
+            $or: [{ follow_status: "confirm" }, { follow_status: "pending" }],
           },
-          "follow_to",
+          "follow_to follow_status",
           limit,
           skip,
           { model: "follow_to", attribute: "username profile name privacy_id badge" }
         );
+        console.log(following)
 
         return {
           status: process.env.SUCCESS,
           message: `Follower fetched successfully,`,
-          data: following.length ? following.map((ele) => JSON.parse(JSON.stringify(ele.follow_to))) : [],
+          data: following.length ? following.map((ele) => {
+            return { ...JSON.parse(JSON.stringify(ele.follow_to)), follow_status: ele.follow_status }
+          }) : [],
         };
       } else {
         return {
@@ -395,8 +401,8 @@ class UserService extends CommonService {
     try {
       const user = await this.FindUserRepo.findByUsername(username, "username name profile privacy_id bio website badge");
       if (user) {
-        const followers = await new FindRepo(follower).findAll({ follow_to: user._id, follow_status: "confirm" || "pending" })
-        const followings = await new FindRepo(follower).findAll({ follow_from: user._id, follow_status: "confirm" || "pending" })
+        const followers = await new FindRepo(follower).findAll({ follow_to: user._id, $or: [{ follow_status: "confirm" }, { follow_status: "pending" }] })
+        const followings = await new FindRepo(follower).findAll({ follow_from: user._id, $or: [{ follow_status: "confirm" }, { follow_status: "pending" }] })
         return {
           status: process.env.SUCCESS,
           message: Messages.PROFILE_FETCHED,
@@ -422,7 +428,14 @@ class UserService extends CommonService {
   }
   async deleteFollower(user_id, { id }) {
     try {
-      const follow = await new DeleteRepo(follower).delete(id)
+      const follow_user = await new FindRepo(follower).findByQuery({ follow_to: user_id, follow_from: id })
+      if (!follow_user) {
+        return {
+          status: process.env.NOTFOUND,
+          message: Messages.USER_NOT_FOUND
+        }
+      }
+      const follow = await new DeleteRepo(follower).delete(follow_user?._id)
       if (follow) {
         return {
           status: process.env.SUCCESS,
