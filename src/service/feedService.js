@@ -449,21 +449,11 @@ class FeedService extends CommonService {
                 if (data.tag && data.tag.length) {
                     var tags = [];
                     for (let i = 0; i < data.tag.length; i++) {
-                        const createTag = await new CreateRepo(tagModel).create({
-                            post_id: createPost._id, tags: {
-                                $push: {
-                                    media_url: data.tag[i].media, tagged_people: {
-                                        $push: {
-                                            people: data.tag[i].tagged_people.map((ele) => { return ele })
-                                        }
-                                    }
-                                }
-                            }
-                        })
+                        console.log(data.tag[i].tagged_people, data.tag[i].media_url)
+                        const createTag = await new CreateRepo(tagModel).create({ post_id: createPost._id, tags: data.tag[i] })
                         tags.push(createTag)
                     }
                 }
-
             }
             return {
                 status: process.env.SUCCESS,

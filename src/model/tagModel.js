@@ -10,12 +10,9 @@ const TagSchema = new mongoose.Schema(
                 media_url: {
                     type: String,
                 },
-                tagged_people: [{
-                    user_id: {
-                        type: Schema.Types.ObjectId,
-                        ref: "UserModel",
-                    }
-                }]
+                tagged_people: {
+                    type: Array
+                }
             }
         ]
     },
