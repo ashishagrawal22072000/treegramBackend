@@ -84,7 +84,7 @@ class AuthValidator {
     }),
   });
 
-  ChangePasswordSchema = Joi.object().keys({
+  ResetPasswordSchema = Joi.object().keys({
     confirmPassword: Joi.string().required().messages({
       "string.empty": `Old password cannot be empty`,
       "any.required": `Old password is required`,
@@ -100,6 +100,23 @@ class AuthValidator {
         "string.pattern.base": `New Password should be minimum 8 characters long (1 UpperCase Alphabet, 1 LowerCase Alphabet, 1 Number, 1 Special Character )`,
       }),
   });
+  ChangePasswordSchema = Joi.object().keys({
+    oldPassword: Joi.string().trim().required().messages({
+      "string.empty": `Old password cannot be empty`,
+      "any.required": `Old password is required`,
+    }),
+    newPassword: Joi.string()
+      .pattern(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/
+      )
+      .required()
+      .messages({
+        "string.empty": `New password cannot be empty`,
+        "any.required": `New password is required`,
+        "string.pattern.base": `New Password should be minimum 8 characters long (1 UpperCase Alphabet, 1 LowerCase Alphabet, 1 Number, 1 Special Character )`,
+      }),
+    confirmPassword: Joi.string().trim().valid(Joi.ref('newPassword')).required()
+  })
 }
 
 export default new AuthValidator();

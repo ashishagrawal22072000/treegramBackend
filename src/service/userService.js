@@ -7,6 +7,7 @@ import follower from "../model/follower.js";
 import UpdateRepo from "../repo/updateRepo.js";
 import lookupRepo from "../repo/lookupRepo.js";
 import DeleteRepo from "../repo/deleteRepo.js";
+import methods from "../util/methods.js";
 class UserService extends CommonService {
   constructor() {
     super(CommonService);
@@ -447,6 +448,59 @@ class UserService extends CommonService {
           message: Messages.USER_NOT_FOUND
         }
       }
+    } catch (err) {
+      console.log(err);
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+
+  async searchUser({ search, limit, skip }) {
+    try {
+      const getUserById = await this.FindUserRepo.findByLike(search, "id username name email badge profile", limit, skip);
+      if (!getUserById.length) {
+        return {
+          status: process.env.BADREQUEST,
+          message: Messages.USER_NOT_FOUND,
+        };
+      }
+      return {
+        status: process.env.SUCCESS,
+        message: Messages.USER_FOUND,
+        data: getUserById,
+      };
+    } catch (err) {
+      return {
+        status: process.env.INTERNALSERVERERROR,
+        message: Messages.INTERNAL_SERVER_ERROR,
+      };
+    }
+  }
+  async changePassword(user_id, { oldPassword, newPassword }) {
+    try {
+      const user = await this.FindUserRepo.findById(user_id, "id password oldPassword");
+      if (!user) {
+        return {
+          status: process.env.BADREQUEST,
+          message: Messages.USER_NOT_FOUND,
+        };
+      }
+      const userPassword = await methods.comparePassword(oldPassword, user.password)
+      if (!userPassword) {
+        return {
+          status: process.env.BADREQUEST,
+          message: Messages.PASSWORD_NOT_MATCH,
+        }
+      }
+      const password = await methods.hashPassword(newPassword)
+      const updateUser = await this.UpdateUserRepo.update({ id: user._id }, { password, $push: { oldPassword: password } })
+      if (!updateUser) throw new Error(updateUser.message)
+      return {
+        status: process.env.SUCCESS,
+        message: Messages.PASSWORD_RESET_SUCCESS,
+      };
     } catch (err) {
       console.log(err);
       return {

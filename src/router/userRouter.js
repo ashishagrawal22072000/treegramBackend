@@ -8,6 +8,7 @@ class UserRouter {
   }
   routes = (router) => {
     router.get("/", userController.getUserBySearch);
+    router.get("/search-user?:search", userController.searchUser)
     router.get("/authuser", userController.getAuthUser);
     router.post("/follow", userController.follow);
     router.post("/close-friend", userController.closeFriend);
@@ -21,6 +22,8 @@ class UserRouter {
     router.get("/user-list", userController.UserList);
     router.get("/view-profile?:username", userController.ViewProfile);
     router.delete("/follower/:id", userController.deleteFollower);
+    router.patch("/change-password", userController.changePassword);
+
   };
 }
 

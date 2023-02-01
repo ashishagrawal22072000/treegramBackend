@@ -39,6 +39,13 @@ class UserValidator {
     bio: Joi.string().trim().allow(""),
     gender: Joi.string().trim().allow(""),
   });
+  searchUser = Joi.object().keys({
+    search: Joi.string().trim().required().messages({
+      "any.required": "EMAIL or USERNAME REQUIRED",
+    }),
+    limit: Joi.number().integer().min(1).default(10),
+    skip: Joi.number().integer().min(0).default(0)
+  })
 }
 
 export default new UserValidator();

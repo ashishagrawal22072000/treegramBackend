@@ -484,14 +484,9 @@ class FeedService extends CommonService {
                 return {
                     status: process.env.SUCCESS,
                     message: Messages.POST_FOUND,
-                    data: { ...JSON.parse(JSON.stringify(post)), like_count: like.like_count, tags }
+                    data: { ...JSON.parse(JSON.stringify(post)), like_count: like.like, tags }
                 }
             }
-            // return {
-            //     status: process.env.SUCCESS,
-            //     message: Messages.POST_FOUND,
-            //     data: post
-            // }
 
         } catch (err) {
             console.log(err)

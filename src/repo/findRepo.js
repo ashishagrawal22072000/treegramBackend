@@ -13,6 +13,15 @@ class FindRepo {
       .limit(limit)
       .skip(skip);
   }
+  async findByLike(query, select = "", limit = 0, skip = 0) {
+    return await this.model
+      .find({
+        $or: [{ username: { $regex: query } }, { email: { $regex: query } }],
+      })
+      .select(select)
+      .limit(limit)
+      .skip(skip);
+  }
 
   async findById(id, select = "") {
     return await this.model.findById(id).select(select);

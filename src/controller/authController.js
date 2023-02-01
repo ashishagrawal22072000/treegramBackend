@@ -138,7 +138,7 @@ class AuthController {
   async resetPassword(req, res) {
     try {
       const changePasswordValidation =
-        authValidator.ChangePasswordSchema.validate(req.body);
+        authValidator.ResetPasswordSchema.validate(req.body);
       if (changePasswordValidation.error) {
         return res.status(process.env.BADREQUEST).json({
           success: false,
@@ -147,7 +147,7 @@ class AuthController {
       }
       const resetPasswordData = await authService.resetPassword(
         req.params.token,
-        req.body
+        changePasswordValidation.value
       );
       return res.status(resetPasswordData.status).json({
         success: resetPasswordData.status == 200 ? true : false,
@@ -193,6 +193,7 @@ class AuthController {
       });
     }
   }
+
 }
 
 export default new AuthController();

@@ -1,5 +1,6 @@
 import userService from "../service/userService.js";
 import Messages from "../util/Messages.js";
+import authValidator from "../validator/authValidator.js";
 import userValidator from "../validator/userValidator.js";
 
 class UserController {
@@ -274,6 +275,7 @@ class UserController {
   }
   async ViewProfile(req, res) {
     try {
+      console.log(req.query)
       const authUser = await userService.viewProfile(
         req.loginUser.id,
         req.query
@@ -312,6 +314,57 @@ class UserController {
       });
     }
 
+  }
+
+  async searchUser(req, res) {
+    try {
+      const search =
+        userValidator.searchUser.validate(req.query);
+      if (search.error) {
+        return res.status(process.env.BADREQUEST).json({
+          success: false,
+          message: search.error.details[0].message,
+        });
+      }
+      const userById = await userService.searchUser(search.value);
+      if (!userById) throw new Error("User not Found");
+      return res.status(userById.status).json({
+        success: userById.status == process.env.SUCCESS ? true : false,
+        message: userById.message,
+        data: userById.data,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
+  }
+
+  async changePassword(req, res) {
+    try {
+      const changePasswordValidation =
+        authValidator.ChangePasswordSchema.validate(req.body);
+      if (changePasswordValidation.error) {
+        return res.status(process.env.BADREQUEST).json({
+          success: false,
+          message: changePasswordValidation.error.details[0].message,
+        });
+      }
+      const changePassword = await userService.changePassword(req.loginUser.id, changePasswordValidation.value)
+      return res.status(changePassword.status).json({
+        success: changePassword.status == 200 ? true : false,
+        message: changePassword.message,
+      });
+
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: `INTERNAL SERVER ERROR`,
+        data: err.message,
+      });
+    }
   }
 }
 
