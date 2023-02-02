@@ -10,7 +10,9 @@ class UserRouter {
         router.post("/create-post", feedController.createPost);
         router.get("/get-single-post/:id", feedController.getSinglePost);
         router.post("/like/:post_id", feedController.likePost)
-
+        router.get("/post-list", feedController.getAllPosts)
+        router.post("/comment-post", feedController.commentPost)
+        router.delete("/comment", feedController.deleteComment)
     };
 }
 

@@ -59,6 +59,10 @@ class FindRepo {
     return await this.model.findOne({ phone });
   }
 
+  async findAndCount(query, attribute = "") {
+    return await this.model.find(query).select(attribute).count();
+  }
+
   // async findByEmail(data) {
   //   return await this.model.findOne({ email: data.email });
   // }

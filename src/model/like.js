@@ -9,13 +9,6 @@ const LikeSchema = new mongoose.Schema(
             type: Schema.Types.ObjectId,
             ref: "PostModel",
         },
-        like_count: {
-            type: Number,
-        },
-        like_status: {
-            type: Boolean,
-            default: false
-        }
     },
     {
         collection: "LikeModel",

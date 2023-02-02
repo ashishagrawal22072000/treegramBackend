@@ -1,6 +1,7 @@
 import feedService from "../service/feedService.js";
 import userService from "../service/userService.js";
 import Messages from "../util/Messages.js";
+import feedvalidator from "../validator/feedvalidator.js";
 import userValidator from "../validator/userValidator.js";
 
 class feedController {
@@ -73,6 +74,75 @@ class feedController {
             });
         }
     }
+
+    async getAllPosts(req, res) {
+        try {
+            const getPostListSchema = feedvalidator.getPostList.validate(req.query);
+            if (getPostListSchema.error) {
+                return res.status(process.env.BADREQUEST).json({
+                    success: false,
+                    message: getPostListSchema.error.details[0].message,
+                });
+            }
+            const postList = await feedService.getAllPosts(getPostListSchema.value);
+            return res.status(postList.status).json({
+                success: postList.status == process.env.SUCCESS ? true : false,
+                message: postList.message,
+                data: postList.data
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
+
+
+    async commentPost(req, res) {
+        try {
+            const postCommentSchema = feedvalidator.postComment.validate(req.body)
+            if (postCommentSchema.error) {
+                return res.status(process.env.BADREQUEST).json({
+                    success: false,
+                    message: postCommentSchema.error.details[0].message,
+                });
+            }
+            const comment = await feedService.postComment(req.loginUser.id, postCommentSchema.value)
+            return res.status(comment.status).json({
+                success: comment.status == process.env.SUCCESS ? true : false,
+                message: comment.message,
+                data: comment.data
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
+
+    async deleteComment(req, res) {
+        try {
+            const removeComment = await feedService.deleteComment(req.loginUser.id, req.body)
+            return res.status(removeComment.status).json({
+                success: removeComment.status == process.env.SUCCESS ? true : false,
+                message: removeComment.message
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
+
     // async userById(req, res) {
     //     try {
     //         const userById = await userService.getUserById(req.params.user_id);

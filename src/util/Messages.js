@@ -48,4 +48,6 @@ export default {
   POST_FOUND: "post found",
   POST_LIKE: "post like successfully",
   POST_UNLIKE: "post unlike successfully",
+  COMMENT_POSTED: "comment posted  successfully",
+  COMMENT_DELETED: "comment deleted successfully"
 };

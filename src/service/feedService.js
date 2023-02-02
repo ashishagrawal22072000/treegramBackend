@@ -11,6 +11,7 @@ import postModel from "../model/postModel.js";
 import hashtagModel from "../model/hashtagModel.js";
 import tagModel from "../model/tagModel.js";
 import likeModel from "../model/like.js";
+import commentModel from "../model/comment.js";
 class FeedService extends CommonService {
     constructor() {
         super(CommonService);
@@ -478,13 +479,12 @@ class FeedService extends CommonService {
                     message: Messages.POST_NOT_FOUND
                 }
             else {
-                const like = await new FindRepo(likeModel).findByQuery({ post_id: post._id }, "like_count")
-                console.log(post)
+                let like = await new FindRepo(likeModel).findAndCount({ post_id: post._id })
                 const tags = await new FindRepo(tagModel).findByQuery({ post_id: post._id }, "post_id tags")
                 return {
                     status: process.env.SUCCESS,
                     message: Messages.POST_FOUND,
-                    data: { ...JSON.parse(JSON.stringify(post)), like_count: like.like, tags }
+                    data: { ...JSON.parse(JSON.stringify(post)), like_count: like, tags }
                 }
             }
 
@@ -501,28 +501,20 @@ class FeedService extends CommonService {
             const like = await new FindRepo(likeModel).findByQuery({ user_id, post_id: data._id })
             console.log(data._id)
             if (!like) {
-                const createLike = await new CreateRepo(likeModel).create({ user_id, post_id: data._id, like_status: true, like_count: data.like_count + 1 })
+                const createLike = await new CreateRepo(likeModel).create({ user_id, post_id: data._id })
                 if (!createLike) throw new Error(createLike.message)
                 return {
                     status: process.env.SUCCESS,
                     message: Messages.POST_LIKE,
                 }
             } else {
-                if (like.like_status) {
-                    const updateLike = await new UpdateRepo(likeModel).update({ _id: like._id }, { like_status: false, like_count: like.like_count - 1 })
-                    if (!updateLike) throw new Error(updateLike.message)
-                    return {
-                        status: process.env.SUCCESS,
-                        message: Messages.POST_UNLIKE,
-                    }
-                } else {
-                    const updateLike = await new UpdateRepo(likeModel).update({ _id: like._id }, { like_status: true, like_count: like.like_count + 1 })
-                    if (!updateLike) throw new Error(updateLike.message)
-                    return {
-                        status: process.env.SUCCESS,
-                        message: Messages.POST_LIKE,
-                    }
+                const deleteLike = await new DeleteRepo(likeModel).delete({ _id: like._id })
+                if (!deleteLike) throw new Error(updateLike.message)
+                return {
+                    status: process.env.SUCCESS,
+                    message: Messages.POST_UNLIKE,
                 }
+                // }
             }
         } catch (err) {
             console.log(err)
@@ -532,6 +524,105 @@ class FeedService extends CommonService {
             };
         }
     }
+
+    async getAllPosts({ limit, skip }) {
+        try {
+            let post = await this.FindUserRepo.findAll({}, "", limit, skip);
+            if (!post)
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.POST_NOT_FOUND
+                }
+            let like = []
+            for (let i = 0; i < post.length; i++) {
+                let like = await new FindRepo(likeModel).findAll({ post_id: post[i]._id }, "_id, user_id")
+                let tags = await new FindRepo(tagModel).findAll({ post_id: post[i]._id }, "tags")
+                post[i] = { ...JSON.parse(JSON.stringify(post[i])), like, tags }
+            }
+            return {
+                status: process.env.SUCCESS,
+                message: Messages.POST_FOUND,
+                data: post
+            }
+
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
+
+    async postComment(user_id, { post_id, comment }) {
+        try {
+            const post = await this.FindUserRepo.findById(post_id)
+            if (!post) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.ERROR_404
+                }
+            }
+            const findcommentPost = await new FindRepo(commentModel).findByQuery({ post_id })
+            if (!findcommentPost) {
+                const commentPost = await new CreateRepo(commentModel).create({ post_id, comments: [{ user_id, comment }] })
+                if (!commentPost) throw new Error(commentPost.message)
+                return {
+                    status: process.env.SUCCESS,
+                    message: Messages.COMMENT_POSTED,
+                    data: commentPost
+                }
+            }
+            else {
+                const updateComment = await new UpdateRepo(commentModel).update({ _id: findcommentPost._id }, { $push: { comments: { user_id, comment } } })
+                if (!updateComment) throw new Error(updateComment.message)
+                return {
+                    status: process.env.SUCCESS,
+                    message: Messages.COMMENT_POSTED,
+                    data: findcommentPost
+                }
+            }
+
+
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
+
+
+    async deleteComment(user_id, { post_id, comment_id }) {
+        try {
+            const postComment = await new FindRepo(commentModel).findByQuery({ post_id })
+            if (!postComment) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.ERROR_404
+                }
+            }
+            const comments = postComment.comments.filter((ele) => {
+                console.log(ele._id == comment_id && ele.user_id == user_id)
+                return ele._id !== comment_id && ele.user_id == user_id
+            })
+            console.log(comments, user_id, postComment._id)
+            const updateComment = await new UpdateRepo(commentModel).update({ _id: postComment._id }, { comments: { ...comments } })
+            if (!updateComment) throw new Error(updateComment.message)
+            return {
+                status: process.env.SUCCESS,
+                message: Messages.COMMENT_DELETED
+            }
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
+
 
 }
 
