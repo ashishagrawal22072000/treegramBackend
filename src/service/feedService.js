@@ -436,6 +436,8 @@ class FeedService extends CommonService {
                     message: createPost.message
                 };
             } else {
+                const createComment = await new CreateRepo(commentModel).create({ post_id: createPost._id })
+                if (!createComment) throw new Error(createComment.message)
                 if (data.hashtag && data.hashtag.length) {
                     var hashtags = [];
                     for (let i = 0; i < data.hashtag.length; i++) {
@@ -498,10 +500,16 @@ class FeedService extends CommonService {
     }
     async likePost(user_id, data) {
         try {
+            const user = await new FindRepo(userModel).findById(user_id, "username profile");
+            if (!user) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.USER_NOT_FOUND
+                }
+            }
             const like = await new FindRepo(likeModel).findByQuery({ user_id, post_id: data._id })
-            console.log(data._id)
             if (!like) {
-                const createLike = await new CreateRepo(likeModel).create({ user_id, post_id: data._id })
+                const createLike = await new CreateRepo(likeModel).create({ user_id, post_id: data._id, username: user.username, profile: user.profile })
                 if (!createLike) throw new Error(createLike.message)
                 return {
                     status: process.env.SUCCESS,
@@ -533,11 +541,17 @@ class FeedService extends CommonService {
                     status: process.env.NOTFOUND,
                     message: Messages.POST_NOT_FOUND
                 }
-            let like = []
+            let likes, comments = []
             for (let i = 0; i < post.length; i++) {
-                let like = await new FindRepo(likeModel).findAll({ post_id: post[i]._id }, "_id, user_id")
+
                 let tags = await new FindRepo(tagModel).findAll({ post_id: post[i]._id }, "tags")
-                post[i] = { ...JSON.parse(JSON.stringify(post[i])), like, tags }
+                if (!post[i].comment_status) {
+                    comments = await new FindRepo(commentModel).findAll({ post_id: post[i]._id }, "comments post_id")
+                }
+                if (!post[i].like_status) {
+                    likes = await new FindRepo(likeModel).findAll({ post_id: post[i]._id }, "_id, user_id username profile")
+                }
+                post[i] = { ...JSON.parse(JSON.stringify(post[i])), likes, tags, comments }
             }
             return {
                 status: process.env.SUCCESS,
@@ -556,6 +570,13 @@ class FeedService extends CommonService {
 
     async postComment(user_id, { post_id, comment }) {
         try {
+            const user = await new FindRepo(userModel).findById(user_id, "username profile")
+            if (!user) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.USER_NOT_FOUND,
+                }
+            }
             const post = await this.FindUserRepo.findById(post_id)
             if (!post) {
                 return {
@@ -563,27 +584,27 @@ class FeedService extends CommonService {
                     message: Messages.ERROR_404
                 }
             }
-            const findcommentPost = await new FindRepo(commentModel).findByQuery({ post_id })
-            if (!findcommentPost) {
-                const commentPost = await new CreateRepo(commentModel).create({ post_id, comments: [{ user_id, comment }] })
-                if (!commentPost) throw new Error(commentPost.message)
-                return {
-                    status: process.env.SUCCESS,
-                    message: Messages.COMMENT_POSTED,
-                    data: commentPost
-                }
-            }
-            else {
-                const updateComment = await new UpdateRepo(commentModel).update({ _id: findcommentPost._id }, { $push: { comments: { user_id, comment } } })
-                if (!updateComment) throw new Error(updateComment.message)
-                return {
-                    status: process.env.SUCCESS,
-                    message: Messages.COMMENT_POSTED,
-                    data: findcommentPost
-                }
-            }
+            const updateComment = await new UpdateRepo(commentModel).update({ post_id: post._id }, { $push: { comments: { user_id, comment, username: user.username, profile: user.profile } } })
+            if (!updateComment) throw new Error(updateComment.message)
 
-
+            // const findcommentPost = await new FindRepo(commentModel).findByQuery({ post_id })
+            // if (!findcommentPost) {
+            //     const commentPost = await new CreateRepo(commentModel).create({ post_id, comments: [{ user_id, comment }] })
+            //     if (!commentPost) throw new Error(commentPost.message)
+            //     return {
+            //         status: process.env.SUCCESS,
+            //         message: Messages.COMMENT_POSTED,
+            //         data: commentPost
+            //     }
+            // }
+            // else {
+            //     const updateComment = await new UpdateRepo(commentModel).update({ _id: findcommentPost._id }, { $push: { comments: { user_id, comment } } })
+            //     if (!updateComment) throw new Error(updateComment.message)
+            return {
+                status: process.env.SUCCESS,
+                message: Messages.COMMENT_POSTED,
+                data: updateComment
+            }
         } catch (err) {
             console.log(err)
             return {
@@ -596,19 +617,14 @@ class FeedService extends CommonService {
 
     async deleteComment(user_id, { post_id, comment_id }) {
         try {
-            const postComment = await new FindRepo(commentModel).findByQuery({ post_id })
-            if (!postComment) {
+            const post = await this.FindUserRepo.findById(post_id)
+            if (!post) {
                 return {
                     status: process.env.NOTFOUND,
                     message: Messages.ERROR_404
                 }
             }
-            const comments = postComment.comments.filter((ele) => {
-                console.log(ele._id == comment_id && ele.user_id == user_id)
-                return ele._id !== comment_id && ele.user_id == user_id
-            })
-            console.log(comments, user_id, postComment._id)
-            const updateComment = await new UpdateRepo(commentModel).update({ _id: postComment._id }, { comments: { ...comments } })
+            const updateComment = await new UpdateRepo(commentModel).update({ post_id, user_id }, { $pull: { comments: { _id: comment_id } } })
             if (!updateComment) throw new Error(updateComment.message)
             return {
                 status: process.env.SUCCESS,
@@ -622,7 +638,81 @@ class FeedService extends CommonService {
             };
         }
     }
+    async replyComment(user_id, { comment_id, post_id, comment }) {
+        try {
+            const user = await new FindRepo(userModel).findById(user_id, "username profile")
+            if (!user) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.USER_NOT_FOUND,
+                }
+            }
+            const post = await this.FindUserRepo.findById(post_id)
+            if (!post) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.ERROR_404
+                }
+            }
+            const updateComment = await new UpdateRepo(commentModel).update({ post_id, "comments._id": comment_id }, {
+                $push: {
+                    "comments.$.comment_reply": { user_id, comment, username: user.username, profile: user.profile }
+                }
+            })
+            console.log(updateComment)
+            if (!updateComment) throw new Error(updateComment.message)
+            return {
+                status: process.env.SUCCESS,
+                message: Messages.COMMENT_POSTED
+            }
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
 
+    async updateComment(user_id, { post_id, comment_id, comment }) {
+        try {
+            const post = await this.FindUserRepo.findById(post_id)
+            if (!post) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.ERROR_404
+                }
+            }
+            // const updateComment = await new UpdateRepo(commentModel).update({ post_id, user_id }, {comments: { _id: comment_id }})
+            const updateComment = await new UpdateRepo(commentModel).update({ post_id, "comments._id": comment_id }, { $set: comment })
+            if (!updateComment) throw new Error(updateComment.message)
+
+            // const findcommentPost = await new FindRepo(commentModel).findByQuery({ post_id })
+            // if (!findcommentPost) {
+            //     const commentPost = await new CreateRepo(commentModel).create({ post_id, comments: [{ user_id, comment }] })
+            //     if (!commentPost) throw new Error(commentPost.message)
+            //     return {
+            //         status: process.env.SUCCESS,
+            //         message: Messages.COMMENT_POSTED,
+            //         data: commentPost
+            //     }
+            // }
+            // else {
+            //     const updateComment = await new UpdateRepo(commentModel).update({ _id: findcommentPost._id }, { $push: { comments: { user_id, comment } } })
+            //     if (!updateComment) throw new Error(updateComment.message)
+            return {
+                status: process.env.SUCCESS,
+                message: Messages.COMMENT_POSTED,
+                data: updateComment
+            }
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
 
 }
 

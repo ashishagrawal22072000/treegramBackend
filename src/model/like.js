@@ -9,6 +9,12 @@ const LikeSchema = new mongoose.Schema(
             type: Schema.Types.ObjectId,
             ref: "PostModel",
         },
+        username: {
+            type: String
+        },
+        profile: {
+            type: String
+        }
     },
     {
         collection: "LikeModel",

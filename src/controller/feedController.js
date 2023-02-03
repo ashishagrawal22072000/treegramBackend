@@ -103,14 +103,14 @@ class feedController {
 
     async commentPost(req, res) {
         try {
-            const postCommentSchema = feedvalidator.postComment.validate(req.body)
-            if (postCommentSchema.error) {
-                return res.status(process.env.BADREQUEST).json({
-                    success: false,
-                    message: postCommentSchema.error.details[0].message,
-                });
-            }
-            const comment = await feedService.postComment(req.loginUser.id, postCommentSchema.value)
+            // const postCommentSchema = feedvalidator.postComment.validate(req.body)
+            // if (postCommentSchema.error) {
+            //     return res.status(process.env.BADREQUEST).json({
+            //         success: false,
+            //         message: postCommentSchema.error.details[0].message,
+            //     });
+            // }
+            const comment = await feedService.postComment(req.loginUser.id, req.body)
             return res.status(comment.status).json({
                 success: comment.status == process.env.SUCCESS ? true : false,
                 message: comment.message,
@@ -142,6 +142,43 @@ class feedController {
             });
         }
     }
+
+    async updateComment(req, res) {
+        try {
+            const comment = await feedService.updateComment(req.loginUser.id, req.body)
+            return res.status(comment.status).json({
+                success: comment.status == process.env.SUCCESS ? true : false,
+                message: comment.message
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+
+    }
+
+    async replyComment(req, res) {
+        try {
+            const replyComment = await feedService.replyComment(req.loginUser.id, req.body)
+            return res.status(replyComment.status).json({
+                success: replyComment.status == process.env.SUCCESS ? true : false,
+                message: replyComment.message
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
+
+
 
     // async userById(req, res) {
     //     try {
