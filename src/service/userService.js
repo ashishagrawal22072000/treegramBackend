@@ -1,6 +1,7 @@
 import FindRepo from "../repo/findRepo.js";
 import Messages from "../util/Messages.js";
 import userModel from "../model/userModel.js";
+import postModel from "../model/postModel.js"
 import CommonService from "./commonServices.js";
 import CreateRepo from "../repo/createRepo.js";
 import follower from "../model/follower.js";
@@ -8,6 +9,7 @@ import UpdateRepo from "../repo/updateRepo.js";
 import lookupRepo from "../repo/lookupRepo.js";
 import DeleteRepo from "../repo/deleteRepo.js";
 import methods from "../util/methods.js";
+
 class UserService extends CommonService {
   constructor() {
     super(CommonService);
@@ -400,17 +402,19 @@ class UserService extends CommonService {
 
   async viewProfile(user_id, { username }) {
     try {
-      const user = await this.FindUserRepo.findByUsername(username, "username name profile privacy_id bio website badge");
+      const user = await this.FindUserRepo.findByUsername(username, "_id username name profile privacy_id bio website badge");
       if (user) {
         const followers = await new FindRepo(follower).findAll({ follow_to: user._id, $or: [{ follow_status: "confirm" }, { follow_status: "pending" }] })
         const followings = await new FindRepo(follower).findAll({ follow_from: user._id, $or: [{ follow_status: "confirm" }, { follow_status: "pending" }] })
+        const posts = await new FindRepo(postModel).findAll({ user_id: user._id })
         return {
           status: process.env.SUCCESS,
           message: Messages.PROFILE_FETCHED,
           data: {
             user,
             follower: followers ? followers.length : 0,
-            following: followings ? followings.length : 0
+            following: followings ? followings.length : 0,
+            post: posts ? posts.length : 0
           }
         }
       } else {
