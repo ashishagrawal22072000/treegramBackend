@@ -429,7 +429,7 @@ class FeedService extends CommonService {
 
     async createPost(user_id, data) {
         try {
-            const createPost = await this.CreateUserRepo.create({ user_id, ...data })
+            const createPost = await this.CreateUserRepo.create({ user: user_id, ...data })
             if (!createPost) {
                 return {
                     status: process.env.BADREQUEST,
@@ -446,7 +446,6 @@ class FeedService extends CommonService {
                             const createhash = await new CreateRepo(hashtagModel).create({ name: data.hashtag[i] })
                             hashtags.push(createhash)
                         }
-
                     }
                 }
                 if (data.tag && data.tag.length) {
@@ -461,7 +460,7 @@ class FeedService extends CommonService {
             return {
                 status: process.env.SUCCESS,
                 message: Messages.USER_FOUND,
-                data: { createPost, hashtags, tags },
+                data: { ...JSON.parse(JSON.stringify(createPost)), hashtags, tags },
             };
         } catch (err) {
             console.log(err)
@@ -535,7 +534,7 @@ class FeedService extends CommonService {
 
     async getAllPosts({ limit, skip }) {
         try {
-            let post = await this.FindUserRepo.findAll({}, "", limit, skip);
+            let post = await this.FindUserRepo.findAll({}, "_id user content location media comment_status like_status", limit, skip, { model: "user", attribute: "username profile name privacy_id badge" });
             if (!post)
                 return {
                     status: process.env.NOTFOUND,
@@ -543,7 +542,6 @@ class FeedService extends CommonService {
                 }
             let likes, comments = []
             for (let i = 0; i < post.length; i++) {
-
                 let tags = await new FindRepo(tagModel).findAll({ post_id: post[i]._id }, "tags")
                 if (!post[i].comment_status) {
                     comments = await new FindRepo(commentModel).findAll({ post_id: post[i]._id }, "comments post_id")
@@ -586,20 +584,6 @@ class FeedService extends CommonService {
             }
             const updateComment = await new UpdateRepo(commentModel).update({ post_id: post._id }, { $push: { comments: { user_id, comment, username: user.username, profile: user.profile } } })
             if (!updateComment) throw new Error(updateComment.message)
-
-            // const findcommentPost = await new FindRepo(commentModel).findByQuery({ post_id })
-            // if (!findcommentPost) {
-            //     const commentPost = await new CreateRepo(commentModel).create({ post_id, comments: [{ user_id, comment }] })
-            //     if (!commentPost) throw new Error(commentPost.message)
-            //     return {
-            //         status: process.env.SUCCESS,
-            //         message: Messages.COMMENT_POSTED,
-            //         data: commentPost
-            //     }
-            // }
-            // else {
-            //     const updateComment = await new UpdateRepo(commentModel).update({ _id: findcommentPost._id }, { $push: { comments: { user_id, comment } } })
-            //     if (!updateComment) throw new Error(updateComment.message)
             return {
                 status: process.env.SUCCESS,
                 message: Messages.COMMENT_POSTED,

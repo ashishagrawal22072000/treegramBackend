@@ -1,9 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 const PostSchema = new mongoose.Schema(
     {
-        user_id: {
+        user: {
             type: Schema.Types.ObjectId,
-            ref: "UserModel",
+            ref: "User",
         },
         content: {
             type: String,
