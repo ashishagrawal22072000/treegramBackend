@@ -534,22 +534,23 @@ class FeedService extends CommonService {
 
     async getAllPosts({ limit, skip }) {
         try {
-            let post = await this.FindUserRepo.findAll({}, "_id user content location media comment_status like_status", limit, skip, { model: "user", attribute: "username profile name privacy_id badge" });
+            let post = await this.FindUserRepo.findAll({}, "_id user content location media commment_status like_status", limit, skip, { model: "user", attribute: "username profile name privacy_id badge" });
             if (!post)
                 return {
                     status: process.env.NOTFOUND,
                     message: Messages.POST_NOT_FOUND
                 }
-            let likes, comments = []
+            let likes = 0
+            let comment_count = []
             for (let i = 0; i < post.length; i++) {
                 let tags = await new FindRepo(tagModel).findAll({ post_id: post[i]._id }, "tags")
                 if (!post[i].comment_status) {
-                    comments = await new FindRepo(commentModel).findAll({ post_id: post[i]._id }, "comments post_id")
+                    comment_count = await new FindRepo(commentModel).findByQuery({ post_id: post[i]._id }, "comments")
                 }
                 if (!post[i].like_status) {
-                    likes = await new FindRepo(likeModel).findAll({ post_id: post[i]._id }, "_id, user_id username profile")
+                    likes = await new FindRepo(likeModel).findAndCount({ post_id: post[i]._id }, "_id, user_id username profile")
                 }
-                post[i] = { ...JSON.parse(JSON.stringify(post[i])), likes, tags, comments }
+                post[i] = { ...JSON.parse(JSON.stringify(post[i])), like_count: likes, tags, comment_count: comment_count.comments.length }
             }
             return {
                 status: process.env.SUCCESS,
