@@ -59,6 +59,7 @@ class feedController {
                 return res.status(like.status).json({
                     success: like.status == process.env.SUCCESS ? true : false,
                     message: like.message,
+                    data: like.data
                 })
             }
             return res.status(post.status).json({
@@ -167,6 +168,24 @@ class feedController {
             return res.status(replyComment.status).json({
                 success: replyComment.status == process.env.SUCCESS ? true : false,
                 message: replyComment.message
+            })
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: `INTERNAL SERVER ERROR`,
+                data: err.message,
+            });
+        }
+    }
+
+    async getCommentList(req, res) {
+        try {
+            const getComment = await feedService.getCommentList(req.params)
+            return res.status(getComment.status).json({
+                success: getComment.status == process.env.SUCCESS ? true : false,
+                message: getComment.message,
+                data: getComment.data
             })
         } catch (err) {
             console.log(err);

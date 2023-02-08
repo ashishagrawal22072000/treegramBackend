@@ -13,7 +13,15 @@ class AuthController {
         message: loginValidation.error.details[0].message,
       });
     }
-    const userLogin = await authService.loginUser(loginValidation.value);
+    const headerData = {
+      user_agent: req.headers["user-agent"],
+      location: req.headers["location"],
+      device_details: req.headers["device-details"],
+      ip_address: req.ip,
+    };
+    console.log(req.headers)
+    console.log(headerData)
+    const userLogin = await authService.loginUser(headerData, loginValidation.value);
     return res.status(userLogin.status).json({
       success: userLogin.status == process.env.SUCCESS ? true : false,
       message: userLogin.message,
@@ -29,7 +37,12 @@ class AuthController {
           message: signUpValidation.error.details[0].message,
         });
       }
-      const signupData = await authService.signUp(signUpValidation.value);
+      const headerData = {
+        user_agent: req.headers["user-agent"],
+        location: req.headers["location"],
+        ip_address: req.ip,
+      };
+      const signupData = await authService.signUp(headerData, signUpValidation.value);
       console.log(signupData.data);
       if (signupData.status == 200) {
         const emailSend = await sendMail.mail(

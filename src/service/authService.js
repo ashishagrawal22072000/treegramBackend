@@ -4,6 +4,8 @@ import CreateRepo from "../repo/createRepo.js";
 import FindRepo from "../repo/findRepo.js";
 import Messages from "../util/Messages.js";
 import CommonService from "./commonServices.js";
+import user_session from "../model/user_session.js";
+import UpdateRepo from "../repo/updateRepo.js";
 
 class AuthService extends CommonService {
   constructor() {
@@ -29,7 +31,7 @@ class AuthService extends CommonService {
     }
   }
 
-  async signUp(data) {
+  async signUp(headerData, data) {
     try {
       const emailExist = await this.FindUserRepo.findByEmail(data.email);
       const phoneExist = await this.FindUserRepo.findByPhone(data.phone);
@@ -51,6 +53,8 @@ class AuthService extends CommonService {
           id: user._id,
           email: user.email,
         });
+        const userSession = await new CreateRepo(user_session).create({ ...headerData, user_id: user._id, token })
+        if (!userSession) throw new Error(`User session not created`)
         return {
           status: process.env.SUCCESS,
           message: Messages.USER_CREATED,
@@ -66,7 +70,7 @@ class AuthService extends CommonService {
     }
   }
 
-  async loginUser(data) {
+  async loginUser(headerData, data) {
     try {
       const userLogin = await this.FindUserRepo.find(data.name);
       if (!userLogin.length) {
@@ -89,6 +93,25 @@ class AuthService extends CommonService {
           id: userLogin[0]._id,
           email: userLogin[0].email,
         });
+        const { user_agent, ip_address } = headerData
+        const tokenExist = await new FindRepo(user_session).findByQuery({
+          user_agent,
+          ip_address,
+          user_id: userLogin[0]._id,
+        })
+
+        if (!tokenExist)
+          await new CreateRepo(user_session).create({
+            ...headerData,
+            user_id: userLogin[0]._id,
+            token,
+          });
+        else
+          await new UpdateRepo(user_session).update({ _id: tokenExist._id }, {
+            ...headerData,
+            token,
+          });
+
         return {
           status: process.env.SUCCESS,
           message: Messages.LOGIN_SUCCESS,

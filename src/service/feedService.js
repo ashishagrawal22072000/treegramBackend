@@ -513,6 +513,7 @@ class FeedService extends CommonService {
                 return {
                     status: process.env.SUCCESS,
                     message: Messages.POST_LIKE,
+                    data: createLike
                 }
             } else {
                 const deleteLike = await new DeleteRepo(likeModel).delete({ _id: like._id })
@@ -520,6 +521,7 @@ class FeedService extends CommonService {
                 return {
                     status: process.env.SUCCESS,
                     message: Messages.POST_UNLIKE,
+                    data: deleteLike
                 }
                 // }
             }
@@ -689,6 +691,31 @@ class FeedService extends CommonService {
                 status: process.env.SUCCESS,
                 message: Messages.COMMENT_POSTED,
                 data: updateComment
+            }
+        } catch (err) {
+            console.log(err)
+            return {
+                status: process.env.INTERNALSERVERERROR,
+                message: Messages.INTERNAL_SERVER_ERROR,
+            };
+        }
+    }
+
+    async getCommentList({ post_id }) {
+        try {
+            const post = await this.FindUserRepo.findById(post_id)
+            if (!post) {
+                return {
+                    status: process.env.NOTFOUND,
+                    message: Messages.ERROR_404
+                }
+            }
+            const getAllComments = await new FindRepo(commentModel).findByQuery({ post_id }, "comments")
+            if (!getAllComments) throw new Error(getAllComments.message)
+            return {
+                status: process.env.SUCCESS,
+                message: Messages.COMMENT_POSTED,
+                data: getAllComments
             }
         } catch (err) {
             console.log(err)

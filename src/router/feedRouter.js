@@ -9,9 +9,10 @@ class UserRouter {
     routes = (router) => {
         router.post("/create-post", feedController.createPost);
         router.get("/get-single-post/:id", feedController.getSinglePost);
-        router.post("/like/:post_id", feedController.likePost)
+        router.patch("/like/:post_id", feedController.likePost)
         router.get("/post-list", feedController.getAllPosts)
         router.post("/comment", feedController.commentPost)
+        router.get("/comment-list/:post_id", feedController.getCommentList)
         router.delete("/comment", feedController.deleteComment)
         router.post("/reply-comment", feedController.replyComment)
     };
