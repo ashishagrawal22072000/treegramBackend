@@ -29,10 +29,11 @@ const storage = new GridFsStorage({
     };
   },
 });
-const upload = multer({ storage }).single("file");
+const upload = multer({ storage }).array("file");
 
 export const uploadImage = async (req, res) => {
   upload(req, res, (err) => {
+    console.log(req.files)
     if (err) {
       return res.status(500).json({
         success: false,
@@ -40,17 +41,21 @@ export const uploadImage = async (req, res) => {
         data: err.message,
       });
     } else {
-      if (!req.file) {
+      if (!req.files.length) {
         return res.status(400).json({
           success: false,
           message: Messages.IMAGE_NOT_FOUND,
         });
       } else {
-        const imageFile = `${Messages.BACKEND_BASEURL}/api/v1/image/${req.file.filename}`;
+        console.log(req.files)
+        const images = [];
+        for (let i = 0; i < req.files.length; i++) {
+          images.push(`${Messages.BACKEND_BASEURL}/api/v1/image/${req.files[i].filename}`);
+        }
         return res.status(200).json({
           success: true,
           message: Messages.IMAGE_UPLOADED,
-          data: imageFile,
+          data: images,
         });
       }
     }
